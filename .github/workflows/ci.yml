@@ -78,8 +78,8 @@ jobs:
       - name: Cross-profile golden case (written by the Rust profile; tests/golden/regenerate.py)
         shell: bash
         run: |
-          for z in tests/golden/case-by-*.zip; do
-            rm -rf golden-out && uv run python -m zipfile -e "$z" golden-out
+          for z in tests/golden/case-by-*.zip.b64; do
+            rm -rf golden-out && uv run python tests/golden/unpack.py "$z" golden-out
             uv run rv-hashinv verify-case golden-out/CASE-GOLDEN
             for logs in golden-out/CASE-GOLDEN/runs/*/*/logs; do
               uv run rv-hashinv verify-log "$logs"

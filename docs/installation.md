@@ -250,7 +250,7 @@ uv run rv-hashinv self-test
 uv run rv-hashinv scan -i examples/sample/evidence --hash sha256,md5 --out /tmp/check --progress none --no-timestamp
 uv run python tests/verify_chain.py /tmp/check/logs/$(ls /tmp/check/logs | tail -n 1)
 # cross-profile: a case folder written by the Rust profile must verify with this build
-uv run python -m zipfile -e tests/golden/case-by-rust.zip /tmp/golden
+uv run python tests/golden/unpack.py tests/golden/case-by-rust.zip.b64 /tmp/golden
 uv run rv-hashinv verify-case /tmp/golden/CASE-GOLDEN
 ```
 

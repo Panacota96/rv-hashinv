@@ -1,18 +1,17 @@
 """Cross-profile check without the other repository: a case folder written by the other profile of this tool
-(tests/golden/case-by-<profile>.zip, made by tests/golden/regenerate.py) verifies with this profile's
+(tests/golden/case-by-<profile>.zip.b64, made by tests/golden/regenerate.py) verifies with this profile's
 verify-case and verify-log, and tampering with it is still detected."""
 
 import os
 import re
 import subprocess
 import sys
-import zipfile
 from pathlib import Path
 
 import pytest
 
 GOLDEN = Path(__file__).resolve().parent / "golden"
-ARCHIVES = sorted(GOLDEN.glob("case-by-*.zip"))
+ARCHIVES = sorted(GOLDEN.glob("case-by-*.zip.b64"))
 
 
 def cli(*args) -> subprocess.CompletedProcess:
@@ -20,10 +19,12 @@ def cli(*args) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, "-m", "rv_hashinv", *map(str, args)], capture_output=True, text=True, encoding="utf-8", env=env)
 
 
-@pytest.mark.parametrize("archive", ARCHIVES, ids=lambda p: p.stem)
+@pytest.mark.parametrize("archive", ARCHIVES, ids=lambda p: p.name.split(".")[0])
 def test_golden_case_from_the_other_profile_verifies(tmp_path, archive):
-    with zipfile.ZipFile(archive) as z:
-        z.extractall(tmp_path)
+    sys.path.insert(0, str(GOLDEN))
+    from unpack import unpack  # noqa: PLC0415 - stdlib-only helper shared with CI and the Rust profile
+
+    unpack(str(archive), str(tmp_path))
     case = tmp_path / "CASE-GOLDEN"
     r = cli("verify-case", case)
     assert r.returncode == 0 and "3 registered items, 1 runs verified" in r.stdout, r.stdout + r.stderr
