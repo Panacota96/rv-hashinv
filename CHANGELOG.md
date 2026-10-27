@@ -5,6 +5,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.3.0](https://github.com/Panacota96/rv-hashinv/compare/v0.2.0...v0.3.0) (2026-10-27)
+
+
+### Features
+
+* case folder, docs (theory, admissibility, installation, usage), source-auditable licence and review fixes ([7bdacf7](https://github.com/Panacota96/rv-hashinv/commit/7bdacf7551ab91b9cd2f2a2cb695a47075033b97))
+* case folder, signed releases and full documentation set ([4254722](https://github.com/Panacota96/rv-hashinv/commit/42547223c9f94c807ef5302af4ec89832c0ee567))
+
+
+### Bug Fixes
+
+* **release:** keep the product version out of the lockfile ([0fe16c5](https://github.com/Panacota96/rv-hashinv/commit/0fe16c5fde58583e375b79fa218fa897bba8b315))
+
 ## [Unreleased]
 
 ### Added
