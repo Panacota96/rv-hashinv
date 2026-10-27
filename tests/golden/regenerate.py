@@ -6,7 +6,7 @@
 The other profile (Rust <-> Python, found through its .forge.json) runs one intake scan of
 examples/sample/evidence into a new case folder, with a timestamp from the local test TSA
 (tests/fake_tsa.py, so the run carries a real RFC 3161 token). The case folder is stored as
-tests/golden/case-by-<other-profile>.zip, and case-by-<other-profile>.json records what produced it.
+tests/golden/case-by-<other-profile>.zip.b64 (base64 text, see unpack.py), and case-by-<other-profile>.json records what produced it.
 This profile's test suite and CI unpack it and run `verify-case` and `verify-log` on it: each profile
 must keep reading what the other writes, byte for byte, without the other repository being present.
 
@@ -24,6 +24,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import base64
+import io
+import textwrap
 import zipfile
 from pathlib import Path
 
@@ -78,8 +81,9 @@ def main() -> int:
             print(f"the {profile} profile did not complete a timestamped intake (exit {r.returncode})")
             return 1
         version = subprocess.run([*cmd, "--version"], cwd=project, capture_output=True, text=True).stdout.strip()
-        archive = HERE / f"case-by-{profile}.zip"
-        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as z:
+        buf = io.BytesIO()
+        archive = HERE / f"case-by-{profile}.zip.b64"
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
             for f in sorted(p for p in case.rglob("*") if p.is_file()):
                 info = zipfile.ZipInfo(f.relative_to(tmp).as_posix(), date_time=(2026, 1, 1, 0, 0, 0))
                 info.compress_type = zipfile.ZIP_DEFLATED
@@ -91,6 +95,7 @@ def main() -> int:
             "note": "Evidence paths in the registry point to a deleted temporary folder: verify-case checks the case "
             "without --rehash. The timestamp comes from the test TSA of tests/fake_tsa.py (not a trusted authority).",
         }
+        archive.write_text("\n".join(textwrap.wrap(base64.b64encode(buf.getvalue()).decode(), 76)) + "\n", encoding="ascii")
         (HERE / f"case-by-{profile}.json").write_text(json.dumps(source, indent=2) + "\n", encoding="utf-8")
         print(f"wrote {archive}")
     return 0

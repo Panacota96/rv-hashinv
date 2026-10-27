@@ -833,8 +833,8 @@ fn cross_language_case_verification() {
 }
 
 /// Cross-profile check without the other repository: a case folder written by the other profile
-/// (tests/golden/case-by-<profile>.zip, made by tests/golden/regenerate.py) verifies here, and tampering with it is
-/// still detected. Unpacked with Python's zipfile (RV_TEST_PYTHON), like the other Python-based oracles.
+/// (tests/golden/case-by-<profile>.zip.b64, made by tests/golden/regenerate.py) verifies here, and tampering with it is
+/// still detected. Unpacked with tests/golden/unpack.py (RV_TEST_PYTHON), like the other Python-based oracles.
 #[test]
 fn golden_case_from_the_other_profile_verifies() {
     let golden = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/golden");
@@ -845,13 +845,13 @@ fn golden_case_from_the_other_profile_verifies() {
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
-    archives.retain(|p| p.extension().is_some_and(|x| x == "zip"));
+    archives.retain(|p| p.to_string_lossy().ends_with(".zip.b64"));
     archives.sort();
     let py = std::env::var("RV_TEST_PYTHON").unwrap_or_else(|_| "python3".into());
     for archive in archives {
         let tmp = tempfile::tempdir().unwrap();
         let unzip = std::process::Command::new(&py)
-            .args(["-m", "zipfile", "-e"])
+            .arg(golden.join("unpack.py"))
             .arg(&archive)
             .arg(tmp.path())
             .status();

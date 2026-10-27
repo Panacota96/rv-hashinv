@@ -82,8 +82,8 @@ jobs:
       - name: Cross-profile golden case (written by the Python profile; tests/golden/regenerate.py)
         shell: bash
         run: |
-          for z in tests/golden/case-by-*.zip; do
-            rm -rf golden-out && python -m zipfile -e "$z" golden-out
+          for z in tests/golden/case-by-*.zip.b64; do
+            rm -rf golden-out && python tests/golden/unpack.py "$z" golden-out
             cargo run --locked -q -p rv-hashinv-cli -- verify-case golden-out/CASE-GOLDEN
             for logs in golden-out/CASE-GOLDEN/runs/*/*/logs; do
               cargo run --locked -q -p rv-hashinv-cli -- verify-log "$logs"

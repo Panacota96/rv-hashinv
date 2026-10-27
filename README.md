@@ -6,7 +6,7 @@ or a list), detects each file's real type, flags anomalies, and writes court-rea
 action recorded in a tamper-evident audit log.
 <!-- /forge:description -->
 
-[![CI](https://github.com/rakvor/rv-hashinv/actions/workflows/ci.yml/badge.svg)](https://github.com/rakvor/rv-hashinv/actions/workflows/ci.yml)
+[![CI](https://github.com/Panacota96/rv-hashinv/actions/workflows/ci.yml/badge.svg)](https://github.com/Panacota96/rv-hashinv/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Rakvor%20source--auditable-6B00FF)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
 
@@ -46,7 +46,7 @@ flowchart LR
 
 ## Install
 
-**Windows 10/11** — download from the [Releases](https://github.com/rakvor/rv-hashinv/releases) page:
+**Windows 10/11** — download from the [Releases](https://github.com/Panacota96/rv-hashinv/releases) page:
 
 - `rv-hashinv-<version>-windows-x64-setup.exe` — installer (Start-menu shortcut, adds the CLI to PATH), or
 - `rv-hashinv-<version>-windows-x64.zip` — portable: unzip and run, nothing is installed.
@@ -124,6 +124,7 @@ flowchart TB
 | [docs/reports.md](docs/reports.md) | Report kinds, fields, JSON schemas, languages |
 | [docs/case-folder.md](docs/case-folder.md) | Shared case folder: evidence registry, case log, intake vs analysis tools, `verify-case` |
 | [docs/development.md](docs/development.md) | Building, testing, CI/CD and releasing |
+| [docs/release-process.md](docs/release-process.md) | Windows packages, code signing and GitHub releases, step by step |
 | [docs/adr/](docs/adr/) | Architecture decisions (e.g. why Rust) |
 
 ## Project layout

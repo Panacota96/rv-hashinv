@@ -44,7 +44,7 @@ flowchart TB
 
 ## 1. Download
 
-Release assets on the GitHub Releases page of the repository (`rakvor/rv-hashinv`):
+Release assets on the GitHub Releases page of the repository (`Panacota96/rv-hashinv`):
 
 | Asset | What it is |
 | --- | --- |
@@ -83,8 +83,8 @@ statement that this exact file was built by the repository's release workflow fr
 with internet access and the GitHub CLI:
 
 ```powershell
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo rakvor/rv-hashinv
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64-setup.exe --repo rakvor/rv-hashinv
+gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-0.1.0-windows-x64-setup.exe --repo Panacota96/rv-hashinv
 ```
 
 The output names the workflow (`.github/workflows/release.yml`) and the source commit; record both. For an
@@ -95,8 +95,25 @@ can also download the attestation bundle and trusted root for offline checks; se
 ## 4. Verify the Authenticode signature (signed releases)
 
 The release workflow signs `rv-hashinv.exe`, `rv-hashinv-gui.exe` and the installer **only when a code-signing
-certificate is configured** for the repository (`SIGN_PFX_BASE64` secret; signtool with SHA-256 and an RFC 3161
-timestamp). Check:
+certificate is configured** for the repository. Releases are signed with Rakvor's **internal** code-signing
+certificate ("Rakvor Code Signing (internal)", issued by "Rakvor Internal Code Signing Root CA"). It is not a public
+certificate: Windows trusts it only on machines where the Rakvor root is installed — Rakvor's own laptops, since the
+tool is used locally and not distributed. Auditors and customers verify releases with steps 2–3 and can inspect the
+signature with the root's fingerprint below.
+
+Install the root once per Rakvor machine (PowerShell as the user who runs the tool; the file is
+`packaging/signing/rakvor-code-signing-root.cer` in the repository):
+
+```powershell
+# Check the fingerprint first — it must be exactly:
+#   SHA-256 DC9BA1A2FCD4F0633C5214B7CCEB25BED8F3F7D9EBAF111590250CBCAA83DF60
+(New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 .\rakvor-code-signing-root.cer).GetCertHashString([System.Security.Cryptography.HashAlgorithmName]::SHA256)
+Import-Certificate -FilePath .\rakvor-code-signing-root.cer -CertStoreLocation Cert:\CurrentUser\Root
+```
+
+Windows shows a confirmation dialog for the new root; accept it only if the fingerprint matched. Without the root,
+`Get-AuthenticodeSignature` reports `UnknownError` (chain to an untrusted root) and SmartScreen may still warn on
+first run. Check:
 
 ```powershell
 Get-AuthenticodeSignature .\rv-hashinv-0.1.0-windows-x64-setup.exe |
@@ -107,11 +124,12 @@ Get-AuthenticodeSignature .\rv-hashinv.exe, .\rv-hashinv-gui.exe | Format-Table 
 
 | Status | Meaning |
 | --- | --- |
-| `Valid` | Signed and intact; check that the signer is the expected Rakvor entity |
+| `Valid` | Signed and intact; the signer must be "Rakvor Code Signing (internal)" |
+| `UnknownError` | Signed, but the Rakvor root is not installed on this machine (install it as above) |
 | `NotSigned` | The release was built without a signing certificate: rely on steps 2–3; Windows SmartScreen will warn |
 | `HashMismatch` / other | Stop: the file was altered after signing |
 
-With the Windows SDK, `signtool verify /pa /v rv-hashinv.exe` shows the full chain.
+With the Windows SDK, `signtool verify /pa /v rv-hashinv.exe` gives the full chain.
 
 ## 5. Install
 
@@ -228,7 +246,7 @@ restriction is not enforced by the OS; on a connected workstation, a Windows Fir
 ### Build
 
 ```powershell
-git clone https://github.com/rakvor/rv-hashinv.git
+git clone https://github.com/Panacota96/rv-hashinv.git
 cd rv-hashinv
 git checkout v0.1.0                       # the tag of the release under review
 rustc --version                           # must print the pinned 1.97.0
@@ -244,7 +262,7 @@ cargo build --release --locked -p rv-hashinv-cli
 target/release/rv-hashinv self-test && examples/sample/run.sh target/release/rv-hashinv
 python3 tests/verify_chain.py examples/sample/out/logs/$(ls examples/sample/out/logs | tail -n 1)
 # cross-profile: a case folder written by the Python profile must verify with this build
-python3 -m zipfile -e tests/golden/case-by-python.zip /tmp/golden
+python3 tests/golden/unpack.py tests/golden/case-by-python.zip.b64 /tmp/golden
 target/release/rv-hashinv verify-case /tmp/golden/CASE-GOLDEN
 ```
 
@@ -315,7 +333,7 @@ The same script compares this build with the Python profile of the tool (measure
 
 | Symptom | Cause and fix |
 | --- | --- |
-| SmartScreen "Windows protected your PC" | Unsigned release (step 4 `NotSigned`). Only after steps 2–3 pass: *More info → Run anyway*. |
+| SmartScreen "Windows protected your PC" (unknown publisher) | SmartScreen judges a file by the **reputation** of a publicly trusted certificate; the internal Rakvor root is not one, so the warning appears even when the signature is `Valid` (and always when `NotSigned`). Only after steps 2–4 pass: *More info → Run anyway*, or remove the downloaded-file mark first with `Unblock-File .\<file>` (do this on the zip **before** extracting it). It goes away for good only with a public certificate (see `docs/release-process.md` §5). |
 | `rv-hashinv` is not recognised | PATH task not selected, or the terminal was opened before installing: open a new terminal or use the full path. |
 | `self-test` prints `FAIL` | Do not use this build for evidence; re-download and repeat steps 2–4. |
 | Sample summary differs from step 6 | Wrong version or modified sample files; compare `environment.json` with the release notes and the sample digests with `expected_hashes.csv`. |

@@ -64,5 +64,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Desktop GUI for Windows 10/11 with progress, elapsed time, ETA and cancel.
 - CI on Linux and Windows; release workflow with portable zip, installer, SHA256SUMS, SBOM and build provenance.
 
-[Unreleased]: https://github.com/rakvor/rv-hashinv/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/rakvor/rv-hashinv/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Panacota96/rv-hashinv/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Panacota96/rv-hashinv/releases/tag/v0.1.0

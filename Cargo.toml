@@ -11,7 +11,7 @@ license = "LicenseRef-Rakvor-Audit"
 publish = false
 rust-version = "1.85"
 authors = ["Rakvor"]
-repository = "https://github.com/rakvor/rv-hashinv"
+repository = "https://github.com/Panacota96/rv-hashinv"
 
 [workspace.dependencies]
 rv-hashinv-core = { path = "src/core" }

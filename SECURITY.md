@@ -27,5 +27,5 @@ Every release publishes `SHA256SUMS`, a CycloneDX SBOM and a GitHub build-proven
 
 ```powershell
 Get-FileHash .\rv-hashinv-0.1.0-windows-x64.zip -Algorithm SHA256
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo rakvor/rv-hashinv
+gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo Panacota96/rv-hashinv
 ```
