@@ -609,8 +609,12 @@ fn case_folder_intake_verify_case_and_tampering() {
         .code(3)
         .stdout(predicate::str::contains("truncated: the case log records"));
     std::fs::write(&audit_path, &full).unwrap();
-    let custody = only_dir(&run_dir.join("reports/items")).join("custody.fr.html");
-    assert!(std::fs::read_to_string(custody).unwrap().contains("E0001"));
+    // Directory listing order differs between filesystems: look at every item's custody form.
+    let custody_ids: Vec<String> = std::fs::read_dir(run_dir.join("reports/items"))
+        .unwrap()
+        .map(|e| std::fs::read_to_string(e.unwrap().path().join("custody.fr.html")).unwrap())
+        .collect();
+    assert!(custody_ids.iter().any(|c| c.contains("E0001")));
     let runs_before = if intake { 1 } else { 2 };
     bin()
         .arg("verify-case")
