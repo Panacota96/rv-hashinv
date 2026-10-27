@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.3.1](https://github.com/Panacota96/rv-hashinv/compare/v0.3.0...v0.3.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **windows:** Rakvor icon on the executables, shortcuts and window title bar ([b6bf710](https://github.com/Panacota96/rv-hashinv/commit/b6bf710ec8040ae84cb23430f013d09fff69e543))
+
 ## [0.3.0](https://github.com/Panacota96/rv-hashinv/compare/v0.2.0...v0.3.0) (2026-10-27)
 
 
