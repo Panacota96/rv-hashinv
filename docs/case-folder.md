@@ -79,6 +79,24 @@ tested in both profiles.
 user picked a disjoint set, SHA-256 (or the registry's algorithm) is added — or replaces the second choice, since
 the two-algorithm limit still holds — and the change is audited as `case_algorithm_added`.
 
+### Called by an analysis tool
+
+An analysis tool can run the intake for the examiner: `rv-pdfauth analyze … --case-dir CASE --intake hashinv`
+starts this executable as `rv-hashinv scan … --case-dir CASE --progress jsonl` with the same evidence and settings,
+then analyses. Nothing changes on this side: the hash inventory, reports, registry and audit log are rv-hashinv's own,
+and its run is an ordinary entry in the case log. The calling tool records this executable's path, version and
+SHA-256 in its own audit log. The interface it relies on — `--version` printing `rv-hashinv X.Y.Z`, the
+`scan` options, the JSON Lines events (`run_started`, `progress`, `run_finished`) and exit codes 0/3 meaning
+"finished" — is therefore a compatibility promise: change it only with a major version.
+
+```mermaid
+flowchart LR
+    P["rv-pdfauth<br/>--intake hashinv"] -->|"scan --case-dir … --progress jsonl"| H["rv-hashinv"]
+    H -->|"registry + hash reports"| C[("Case folder")]
+    H -->|"progress, run id, exit code"| P
+    P -->|"analysis, verified against the registry"| C
+```
+
 ## Events
 
 ```mermaid
