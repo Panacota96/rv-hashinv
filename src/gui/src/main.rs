@@ -6,6 +6,13 @@ use eframe::egui;
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            // Title-bar and taskbar icon (the .exe file icon comes from build.rs).
+            .with_icon(
+                eframe::icon_data::from_png_bytes(include_bytes!(
+                    "../../../assets/brand/rv-mark.png"
+                ))
+                .expect("bundled icon is a valid PNG"),
+            )
             .with_title("RV HashInv — Rakvor")
             .with_inner_size([860.0, 720.0])
             .with_min_inner_size([640.0, 520.0])
