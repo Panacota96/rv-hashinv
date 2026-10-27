@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/rv-mark.png" width="96" alt="Rakvor RV logo"></p>
+
 # RV HashInv
 
 <!-- forge:description -->
@@ -9,6 +11,8 @@ action recorded in a tamper-evident audit log.
 [![CI](https://github.com/Panacota96/rv-hashinv/actions/workflows/ci.yml/badge.svg)](https://github.com/Panacota96/rv-hashinv/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Rakvor%20source--auditable-6B00FF)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
+
+![Main window after inventorying the sample evidence](docs/images/gui-main.png)
 
 ```mermaid
 flowchart LR
