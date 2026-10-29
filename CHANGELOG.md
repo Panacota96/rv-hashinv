@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.4.0](https://github.com/Panacota96/rv-hashinv/compare/v0.3.1...v0.4.0) (2026-10-29)
+
+
+### Features
+
+* **cli:** describe --json prints the tool's self-description for RV Hub ([38067db](https://github.com/Panacota96/rv-hashinv/commit/38067dbe0535c4da73e1085a149f5a883589cdf6))
+* **gui:** --case-dir DIR presets the case folder when RV Hub launches the app ([c9c8410](https://github.com/Panacota96/rv-hashinv/commit/c9c8410ce7382409a50c05de4a58e50f56423669))
+
 ## [0.3.1](https://github.com/Panacota96/rv-hashinv/compare/v0.3.0...v0.3.1) (2026-10-27)
 
 
