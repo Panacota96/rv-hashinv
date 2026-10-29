@@ -145,6 +145,36 @@ lists every evidence id and its status. Every setting you change before starting
 (`ui_*` actions). The engine, outputs and findings are the same as the CLI's. Details:
 [usage-gui.md](usage-gui.md).
 
+### Starting from RV Hub: `--case-dir` and `describe --json`
+
+RV Hub (the Rakvor launcher) finds the installed tools, opens them on a case folder and suggests which one fits a
+file. It relies on two entry points of RV HashInv:
+
+- **`rv-hashinv-gui.exe --case-dir <CASE> [FILES...]`** starts the desktop app with **Case folder** already filled
+  (`--case-dir=<CASE>` also works). Other arguments are pre-loaded as evidence, as when files are dropped on the
+  icon. The preset is written to the run's audit log as `ui_case_dir_from_launcher` (path and `at_utc`) followed by
+  `ui_case_dir_changed`. `--case-dir` without a folder is ignored: the window says so and the audit log records
+  `ui_launch_argument_ignored`.
+- **`rv-hashinv describe --json`** prints one JSON object (sorted keys) that RV Hub reads; it is hidden from
+  `rv-hashinv --help` but listed in [usage-cli.md](usage-cli.md). It reads and writes nothing. Schema:
+  [`schemas/describe.schema.json`](../schemas/describe.schema.json) (`rakvor.describe/1`, identical in every Rakvor
+  tool).
+
+| Field | Meaning |
+| --- | --- |
+| `schema` | `rakvor.describe/1` |
+| `tool`, `title`, `version` | `rv-hashinv`, `RV HashInv`, the product version (`version.txt`) |
+| `role` | `intake` (registers evidence in the case folder) |
+| `main_verb` | `scan`: the command that does the main work |
+| `accepts` | `extensions` (lower case, no dot) and content `signatures` (`format` + `match`: hex bytes at an offset); `"*"` = any file |
+| `case_formats`, `log_formats` | `rakvor.case/1`; `rakvor.audit/1` = `logs/audit.jsonl`, `rakvor.review/1` = `logs/review.jsonl` |
+| `cli_exe`, `gui_exe` | `rv-hashinv.exe`, `rv-hashinv-gui.exe` |
+| `exit_codes` | The meaning of 0, 1, 2, 3 and 130 (table in section 9) |
+
+```powershell
+rv-hashinv describe --json
+```
+
 ## 3. Reading the outputs
 
 ```mermaid
@@ -339,6 +369,7 @@ SHA256).Hash.ToLower()` and search the value in `audit.jsonl`.
 | `verify-case` | case intact (warnings printed) | not a case folder (no `case.json`) | — | at least one check failed (with `--rehash`: an evidence file differs from the registry) | — |
 | `timestamp` | obtained and logged | TSA unreachable (nothing changed) | — | log missing, broken or unreadable (nothing added) | — |
 | `self-test` | all pass | a failure: do not use the build | — | — | — |
+| `describe` | description printed | — | usage error (unknown option) | — | — |
 
 ### Messages
 
