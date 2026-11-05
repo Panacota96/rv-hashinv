@@ -600,7 +600,8 @@ registered more than once (its content changed between intakes, so it received a
 latest registration; the earlier ids are listed as superseded. A difference is a problem (exit 3); an unreachable
 or unreadable file is a warning, because evidence copies often live on another workstation.
 
-What `verify-case` does **not** do: verify TSA signatures (B8), or prove that the registry's first content equals
+What `verify-case` does **not** do: validate the TSA certificate chain (it checks each token's TSA signature;
+the chain needs `verify-log --tsa-ca`, B8), or prove that the registry's first content equals
 the original source.
 
 ## B8 RFC 3161 trusted timestamp
@@ -644,9 +645,19 @@ from the worked example of B6, example nonce):
   appends `timestamp_obtained` for the then-current head (earlier entries are never rewritten).
 - `verify-log` and `verify-case` re-check: that entry `covers_seq` is still in the log (otherwise: `truncated`), the
   `.tsr` SHA-256 against `token_sha256`, the TSA status, and that the imprint equals the `entry_hash` of
-  `covers_seq`. They do **not** verify the TSA's signature, certificate chain,
-  policy OID or accuracy. Do that with OpenSSL against the TSA's published chain
-  ([usage.md](usage.md#6-timestamps)) before relying on the time in court (gap G18). Real check of the test token:
+  `covers_seq`. They also verify the TSA's **CMS signature** (`trust::verify_token`, the same code as RV Hub,
+  rv-pdfauth and rv-imgauth): the content type is `id-ct-TSTInfo`; there is exactly one SignerInfo and its
+  certificate is in the token; the signed attributes carry content-type, a message-digest equal to the digest of
+  the TSTInfo, and an ESS signing-certificate (v1 or v2) matching that certificate; the RSA PKCS#1 v1.5 signature
+  over the signed attributes verifies; and the certificate has the `timeStamping` extended key usage (RFC 3161
+  §2.3). Any failure ("signature value does not verify") fails the log (exit 3).
+- The **TSA certificate chain** is validated only by `verify-log --tsa-ca <CA bundle>` (PEM or DER): a path from
+  the TSA certificate, through the certificates in the token, to one of the bundle's certificates, checking each
+  RSA signature, the validity period at `genTime` and the CA flag of every issuer. Without it the output says
+  "chain not checked": the token is shown to be signed by the certificate it carries, not that this certificate
+  belongs to a TSA you trust. **Revocation (CRL/OCSP), policy OID and accuracy are never checked**, and only RSA
+  signers are supported (an ECDSA token fails as "signature not checked"). Check revocation with OpenSSL against
+  the TSA's published chain ([usage.md](usage.md#6-timestamps)) before relying on the time in court (gap G18). Real check of the test token:
   `openssl ts -verify -digest 53b0de42…a91a61 -in timestamp-00018.tsr -CAfile ca.pem -untrusted tsa.pem` →
   `Verification: OK`.
 - The default TSA URL is plain HTTP; integrity rests on the TSA's signature, which is why the OpenSSL check

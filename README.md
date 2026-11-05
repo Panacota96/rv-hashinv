@@ -77,7 +77,8 @@ rv-hashinv scan -i D:\evidence -r --hash sha256,md5 --lang es --case CASE-2026-0
 $env:RV_SIGN_PASSWORD = Read-Host -AsSecureString | ConvertFrom-SecureString -AsPlainText
 rv-hashinv scan -i D:\evidence -r --jurisdiction fr --sign-cert C:\certs\examiner.p12 --lang fr
 
-# Later, prove the log was not altered (also checks the RFC 3161 timestamp)
+# Later, prove the log was not altered (also checks the RFC 3161 timestamp and its TSA signature;
+# add --tsa-ca <TSA roots.pem> to validate the TSA certificate chain)
 rv-hashinv verify-log rakvor-out\logs\<RUN-ID>
 
 # The run was offline? Add the trusted timestamp once the network is back

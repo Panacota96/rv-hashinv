@@ -27,6 +27,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Fixed
+- `verify-log` and `verify-case` now verify the TSA's CMS signature on every RFC 3161 token (signer certificate
+  in the token, ESS signing-certificate binding, message digest over TSTInfo, RSA PKCS#1 v1.5 signature,
+  `timeStamping` key usage); before, a token with an altered signature was reported intact. `verify-log --tsa-ca
+  <PEM>` also validates the TSA certificate chain at genTime; without it the output says "chain not checked".
+  Unreadable bundle: exit 1; signature or chain failure: exit 3. Revocation is not checked; RSA signers only.
+
 ### Added
 - `verify-log` checks truncation against the records kept outside the log: the RFC 3161 timestamp (`covers_seq`)
   and, for a run in a case folder, the audit head recorded at `run_finished` in the case log; it names the anchor
