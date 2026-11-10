@@ -5,6 +5,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.4.0](https://github.com/Panacota96/rv-hashinv/compare/v0.3.1...v0.4.0) (2026-11-10)
+
+
+### Features
+
+* **cli:** describe --json prints the tool's self-description for RV Hub ([38067db](https://github.com/Panacota96/rv-hashinv/commit/38067dbe0535c4da73e1085a149f5a883589cdf6))
+* **gui:** --case-dir DIR presets the case folder when RV Hub launches the app ([c9c8410](https://github.com/Panacota96/rv-hashinv/commit/c9c8410ce7382409a50c05de4a58e50f56423669))
+
+
+### Bug Fixes
+
+* **trust:** drive timestamp checks from the audit log; RFC 3161/5280 TSA path rules ([717a0dd](https://github.com/Panacota96/rv-hashinv/commit/717a0dd5ecf535a122294a3f48ea767cf931dca9))
+* **trust:** verify the TSA CMS signature and, with --tsa-ca, its chain ([d600829](https://github.com/Panacota96/rv-hashinv/commit/d60082927de79a091d807205c01d184e9b01d8b9))
+* **trust:** verify the TSA CMS signature and, with --tsa-ca, its chain ([09c8b33](https://github.com/Panacota96/rv-hashinv/commit/09c8b33b577c4214b76cf105c769c6d7bdf04586))
+
 ## [0.3.1](https://github.com/Panacota96/rv-hashinv/compare/v0.3.0...v0.3.1) (2026-10-27)
 
 
