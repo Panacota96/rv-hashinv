@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.4.1](https://github.com/Panacota96/rv-hashinv/compare/v0.4.0...v0.4.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* **security:** patch dependency advisories, blind RSA signing, check advisories in CI ([972f905](https://github.com/Panacota96/rv-hashinv/commit/972f905c61f5b4838c74d351ae759b37e8f899ee))
+* **security:** patch dependency advisories, blind RSA signing, check advisories in CI ([ac7ed82](https://github.com/Panacota96/rv-hashinv/commit/ac7ed8286aff57ca6246cfac926d028d981ffd58))
+
 ## [0.4.0](https://github.com/Panacota96/rv-hashinv/compare/v0.3.1...v0.4.0) (2026-11-10)
 
 
