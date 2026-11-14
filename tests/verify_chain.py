@@ -123,7 +123,22 @@ def mbox_digest(path: str, algo: str, size: int | None) -> str:
 # -------------------------------------------------------------------------------------------------------- register
 
 
-def verify_register(path: str) -> list[str]:
+def hub_case_log(log_dir: str) -> str | None:
+    """The case log an rv-hub run read, or None. Only an rv-hub run inside a case (`<CASE>/runs/rv-hub/<ID>/logs`)
+    registers the append-only case log; for any other run a file named case-log.jsonl is ordinary evidence."""
+    _, run_dir = layout_of(log_dir)
+    if run_dir is None:
+        return None
+    tool_dir = os.path.dirname(run_dir)
+    if os.path.basename(tool_dir) != "rv-hub" or os.path.basename(os.path.dirname(tool_dir)) != "runs":
+        return None
+    try:
+        return real(os.path.join(os.path.dirname(os.path.dirname(tool_dir)), "case-log.jsonl"))
+    except OSError:
+        return None
+
+
+def verify_register(path: str, case_log: str | None = None) -> list[str]:
     problems = []
     with open(path, encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh)
@@ -141,8 +156,9 @@ def verify_register(path: str) -> list[str]:
                         got = digest(p, a)
                         # The case log is append-only and is read before the hub appends its own entries: the
                         # register's size says how many bytes were read, and that prefix must keep the digest.
-                        if got != row[a] and os.path.basename(p) == "case-log.jsonl" and size is not None \
-                                and size < os.path.getsize(p) and digest(p, a, size) == row[a]:
+                        if got != row[a] and case_log is not None and size is not None \
+                                and real(p) == case_log and size < os.path.getsize(p) \
+                                and digest(p, a, size) == row[a]:
                             continue
                 except OSError as e:
                     problems.append(f"{p}: {e}")
@@ -390,7 +406,8 @@ def main() -> int:
     log, csv_path = os.path.join(d, "audit.jsonl"), os.path.join(d, "hashes.csv")
     try:
         chain, entries = verify_chain(log) if os.path.isfile(log) else ([f"{log}: missing"], [])
-        register = verify_register(csv_path) if os.path.isfile(csv_path) else [f"{csv_path}: missing"]
+        register = (verify_register(csv_path, hub_case_log(d)) if os.path.isfile(csv_path)
+                    else [f"{csv_path}: missing"])
         outputs = None if chain else verify_outputs(d, entries)
     except NeedBlake3:
         print("error: this run used blake3: install the `blake3` module (pip install blake3)")
