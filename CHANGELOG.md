@@ -5,6 +5,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.4.2](https://github.com/Panacota96/rv-hashinv/compare/v0.4.1...v0.4.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **core:** late audit entries and redirected run folders cannot hide an edited output ([b134c05](https://github.com/Panacota96/rv-hashinv/commit/b134c0522c270a928031adde8d9e8254f82d13c7))
+* **core:** re-hash the outputs a run's audit log records in verify-log and verify-case ([2473c71](https://github.com/Panacota96/rv-hashinv/commit/2473c71e12810b291e75d9fcc18faacaca049b20))
+* verify-log and verify-case re-hash the outputs the audit log records ([e4c26ba](https://github.com/Panacota96/rv-hashinv/commit/e4c26bae4ed6412ea724459936499409fb37c015))
+
 ## [0.4.1](https://github.com/Panacota96/rv-hashinv/compare/v0.4.0...v0.4.1) (2026-11-10)
 
 
