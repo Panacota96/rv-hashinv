@@ -71,6 +71,8 @@ pie showData
 | `DUPLICATE` | Identical content (same primary hash) in several files | Who copied it or when |
 | `UNREADABLE` | Reading failed, with the OS error | That the file is damaged |
 | `EVIDENCE_HASH_MISMATCH_WITH_CASE` (high, case folder) | The file differs from the evidence registered at intake | Who changed it, when, or why |
+| `COLLECTION_DIGEST_MISMATCH` (high, RV Triage package) | The file differs from the digest its RV Triage collection recorded on the collected machine | When or by whom it was changed, or that the collection was wrong |
+| `COLLECTION_LOG_UNVERIFIED` (medium, RV Triage package) | The package's collection audit log is missing (package copied without `logs/`) or does not verify, so the files cannot be tied to the collection | That any file was altered |
 | `EVIDENCE_NOT_IN_CASE_REGISTRY` (medium, case folder) | No registered item has this path or content | That the file is altered or irrelevant |
 | `REGISTRY_PATH_CONTENT_CHANGED` (medium, intake) | A registered path now holds other content (new evidence id) | Which version is the original |
 

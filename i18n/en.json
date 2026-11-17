@@ -139,6 +139,16 @@
       "title": "Registered path now holds different content",
       "shows": "This path was registered earlier as %{previous_id} with other content; the current content gets a new evidence ID.",
       "does_not_prove": "Which version is the original or why the content changed."
+    },
+    "COLLECTION_DIGEST_MISMATCH": {
+      "title": "Differs from what the collection hashed",
+      "shows": "This file is part of the RV Triage package of collection %{run_id}, which recorded its %{algorithm} as %{collected} on the machine where it was collected; the file registered now has %{registered}.",
+      "does_not_prove": "It does not show when or by whom the file was changed, nor that the collection itself was wrong."
+    },
+    "COLLECTION_LOG_UNVERIFIED": {
+      "title": "Collection log not verified",
+      "shows": "This file comes from an RV Triage package, but its collection's audit log could not be verified (%{state}): %{reason}. The file is registered with its digests as found now.",
+      "does_not_prove": "It does not show that the file was altered; the package may simply have been copied without its logs folder. Copy the whole collection output and register it again to link it."
     }
   },
   "limitations": {

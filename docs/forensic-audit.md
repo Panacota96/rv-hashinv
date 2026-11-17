@@ -175,6 +175,7 @@ physical transfers. This is a working aid, not legal advice: check it against th
 | `item_hashed` | each item | digests, bytes read, `mtime_unchanged` |
 | `item_error` | unreadable item | error message |
 | `item_analyzed` | each item | detected type, extension, findings, status |
+| `collection_linked` | each RV Triage package among the inputs | package, `manifest_sha256`; `collection` (tool, version, run id, its log, **its final audit entry number and head**, timestamps); `verification` (`intact`, `problems`, `chain_broken`, `missing`) with the problem lines; `items` matched / mismatched / not in the collection / unverified (see case-folder.md, RV Triage packages) |
 | `item_cancelled` / `run_cancelled` | on cancel | processed count |
 | `duplicate_group` | after the loop | hash, item indexes |
 | `hash_register_written` | | digests of `hashes.csv` |

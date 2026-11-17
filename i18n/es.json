@@ -139,6 +139,16 @@
       "title": "La ruta registrada contiene ahora otro contenido",
       "shows": "Esta ruta se registró antes como %{previous_id} con otro contenido; el contenido actual recibe un nuevo ID de evidencia.",
       "does_not_prove": "Cuál versión es la original ni por qué cambió el contenido."
+    },
+    "COLLECTION_DIGEST_MISMATCH": {
+      "title": "Difiere de lo que hasheó la recolección",
+      "shows": "Este archivo forma parte del paquete RV Triage de la recolección %{run_id}, que registró su %{algorithm} como %{collected} en la máquina donde se recolectó; el archivo registrado ahora tiene %{registered}.",
+      "does_not_prove": "No demuestra cuándo ni quién cambió el archivo, ni que la recolección misma estuviera equivocada."
+    },
+    "COLLECTION_LOG_UNVERIFIED": {
+      "title": "Registro de la recolección no verificado",
+      "shows": "Este archivo proviene de un paquete RV Triage, pero el registro de auditoría de su recolección no pudo verificarse (%{state}): %{reason}. El archivo se registra con sus hashes tal como se encuentra ahora.",
+      "does_not_prove": "No demuestra que el archivo haya sido alterado; puede que el paquete se copiara sin su carpeta de registros. Copie toda la salida de la recolección y regístrela de nuevo para vincularla."
     }
   },
   "limitations": {
