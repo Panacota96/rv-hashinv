@@ -139,6 +139,16 @@
       "title": "Le chemin enregistré contient désormais un autre contenu",
       "shows": "Ce chemin a déjà été enregistré comme %{previous_id} avec un autre contenu ; le contenu actuel reçoit un nouvel ID d'élément.",
       "does_not_prove": "Quelle version est l'originale ni pourquoi le contenu a changé."
+    },
+    "COLLECTION_DIGEST_MISMATCH": {
+      "title": "Diffère de ce que la collecte a haché",
+      "shows": "Ce fichier fait partie du paquet RV Triage de la collecte %{run_id}, qui a enregistré son %{algorithm} comme %{collected} sur la machine où il a été collecté ; le fichier enregistré maintenant a %{registered}.",
+      "does_not_prove": "Cela ne dit ni quand ni par qui le fichier a été modifié, ni que la collecte elle-même était erronée."
+    },
+    "COLLECTION_LOG_UNVERIFIED": {
+      "title": "Journal de la collecte non vérifié",
+      "shows": "Ce fichier provient d'un paquet RV Triage, mais le journal d'audit de sa collecte n'a pas pu être vérifié (%{state}) : %{reason}. Le fichier est enregistré avec ses empreintes telles qu'elles sont maintenant.",
+      "does_not_prove": "Cela ne prouve pas que le fichier a été modifié ; le paquet a peut-être été copié sans son dossier de journaux. Copiez toute la sortie de la collecte et enregistrez-la à nouveau pour la lier."
     }
   },
   "limitations": {

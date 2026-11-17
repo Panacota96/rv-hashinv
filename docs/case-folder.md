@@ -138,6 +138,30 @@ Run audit (`audit.jsonl`) events added by the case folder: `case_linked` (entry 
 `run_started` entry in the case log; `run_finished.audit_head` in the case log is the hash of the run's final audit
 entry. Editing either side breaks a link.
 
+## RV Triage packages
+
+An input folder that holds a `manifest.json` of format `rakvor.triage-manifest/1` is an RV Triage collection
+package (`<OUT>/reports/<RUN-ID>/package`). Before registering its files, rv-hashinv:
+
+1. finds the collection's audit log in the same output folder (`<OUT>/logs/<RUN-ID>/audit.jsonl`) and verifies it
+   exactly as `verify-log` does: hash chain, RFC 3161 timestamp, and a re-hash of every packaged file it records;
+2. compares every file it registers from the package with the digest the collection recorded for it on the
+   collected machine: a difference is `COLLECTION_DIGEST_MISMATCH` (high);
+3. writes one `collection_linked` entry in its own audit log with the collection's run id and **final audit
+   entry number and head**. The case log pins this run's final head in `run_finished`, so the chain is
+   case log → intake run → collection run, with no change to the case or registry formats.
+
+```mermaid
+flowchart LR
+    CL[(case log)] -->|run_finished: intake audit head| IA[(intake audit log)]
+    IA -->|collection_linked: collection audit head| CA[(collection audit log)]
+    CA -->|output_written: digest per packaged file| P[package files]
+    IA -->|item_hashed: digest per registered file| P
+```
+
+Without the collection's `logs/` folder (a package copied on its own) the files are still registered, each with
+`COLLECTION_LOG_UNVERIFIED` (medium): copy the whole collection output folder to keep the link.
+
 ## Safety rules
 
 - **A broken case is never extended.** Before every append a tool re-verifies the case-log chain, `case.json`

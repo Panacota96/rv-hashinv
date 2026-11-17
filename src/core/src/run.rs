@@ -567,6 +567,41 @@ fn pipeline(
         });
     }
 
+    // RV Triage packages among the inputs: verify each one's collection log and compare every item with the
+    // digest the collection recorded for it (collection.rs); one collection_linked entry per package.
+    let mut candidates = cfg.inputs.clone();
+    if let Some(list) = &cfg.input_list
+        && let Ok(listed) = crate::input::read_list(list)
+    {
+        candidates.extend(listed);
+    }
+    let packages = crate::collection::detect(&candidates);
+    if !packages.is_empty() {
+        let links: Vec<crate::collection::PackageLink> = packages
+            .iter()
+            .map(|p| crate::collection::link(p))
+            .collect();
+        let mut tallies = vec![crate::collection::Tally::default(); links.len()];
+        for r in results.iter_mut().filter(|r| !r.hashes.is_empty()) {
+            let p = crate::case::normalize(&r.path);
+            if let Some(i) = links.iter().position(|l| p.starts_with(&l.package)) {
+                let (check, finding) = crate::collection::check_item(&links[i], &r.path, &r.hashes);
+                tallies[i].add(check);
+                if let Some(f) = finding {
+                    r.findings.push(f);
+                }
+            }
+        }
+        for (l, t) in links.iter().zip(tallies) {
+            log.record(
+                "collection_linked",
+                Some(&l.package.display().to_string()),
+                crate::collection::details(l, t),
+            )
+            .map_err(io)?;
+        }
+    }
+
     // Intake: register every successfully hashed item in the case registry (under the case lock).
     if let (Some(l), CaseRole::Intake) = (link.as_deref_mut(), cfg.case_role) {
         register_items(l, &mut results, &hashed_seq, &mut log, sink)?;
