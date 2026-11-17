@@ -569,7 +569,13 @@ fn pipeline(
 
     // RV Triage packages among the inputs: verify each one's collection log and compare every item with the
     // digest the collection recorded for it (collection.rs); one collection_linked entry per package.
-    let packages = crate::collection::detect(&cfg.inputs);
+    let mut candidates = cfg.inputs.clone();
+    if let Some(list) = &cfg.input_list
+        && let Ok(listed) = crate::input::read_list(list)
+    {
+        candidates.extend(listed);
+    }
+    let packages = crate::collection::detect(&candidates);
     if !packages.is_empty() {
         let links: Vec<crate::collection::PackageLink> = packages
             .iter()

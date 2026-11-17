@@ -306,11 +306,35 @@ pub fn check_item(
         }
     }
     if hashes.iter().any(|(a, _)| rec.contains_key(a.name())) {
-        (ItemCheck::Matched, None)
-    } else {
-        // No algorithm in common: nothing to compare.
-        (ItemCheck::NotInCollection, None)
+        return (ItemCheck::Matched, None);
     }
+    // No algorithm in common (e.g. an intake with blake3 of a sha256 collection): hash the file again with the
+    // collection's algorithm, so an edited file is never passed over as "not in the collection".
+    for (name, then) in rec {
+        let Some(alg) = HashAlgo::parse(name) else {
+            continue;
+        };
+        let now = match std::fs::File::open(path)
+            .and_then(|f| crate::hash::hash_reader(f, &[alg], |_| true))
+        {
+            Ok(Some(o)) => o.digests[0].1.clone(),
+            _ => continue,
+        };
+        if !then.eq_ignore_ascii_case(&now) {
+            return (
+                ItemCheck::Mismatched,
+                Some(
+                    Finding::new(COLLECTION_DIGEST_MISMATCH, Severity::High)
+                        .with("algorithm", alg.name())
+                        .with("collected", then.clone())
+                        .with("registered", now)
+                        .with("run_id", l.run_id.clone().unwrap_or_else(|| "?".into())),
+                ),
+            );
+        }
+        return (ItemCheck::Matched, None);
+    }
+    (ItemCheck::NotInCollection, None)
 }
 
 /// The package (if any) an item belongs to.
@@ -456,6 +480,63 @@ mod tests {
             1
         );
         assert!(s.high >= 1);
+    }
+
+    #[test]
+    fn an_edit_is_caught_even_without_a_common_algorithm() {
+        let t = tempfile::tempdir().unwrap();
+        let pkg = package(&t.path().join("usb"));
+        std::fs::write(
+            pkg.join("artifacts/prefetch/Windows/Prefetch/A.pf"),
+            b"edited",
+        )
+        .unwrap();
+        let cfg = RunConfig {
+            inputs: vec![pkg.clone()],
+            recursive: true,
+            algorithms: vec![HashAlgo::Blake3],
+            out_dir: t.path().join("out"),
+            langs: vec!["en".into()],
+            ..Default::default()
+        };
+        let s = run(&cfg, &mut |_| {}, &AtomicBool::new(false)).unwrap();
+        let e = read_entries(&s.log_dir.join("audit.jsonl"));
+        let l = linked(&e);
+        assert_eq!(l[0]["items"]["mismatched"], 1, "{}", l[0]);
+        assert_eq!(l[0]["items"]["matched"], 2);
+        assert_eq!(
+            codes(&s)
+                .iter()
+                .filter(|c| *c == COLLECTION_DIGEST_MISMATCH)
+                .count(),
+            1
+        );
+        assert!(s.high >= 1);
+    }
+
+    #[test]
+    fn a_package_named_in_an_input_list_is_linked() {
+        let t = tempfile::tempdir().unwrap();
+        let pkg = package(&t.path().join("usb"));
+        let list = t.path().join("list.txt");
+        std::fs::write(
+            &list,
+            format!("{}{}", pkg.display(), '
+'),
+        )
+        .unwrap();
+        let cfg = RunConfig {
+            input_list: Some(list),
+            recursive: true,
+            out_dir: t.path().join("out"),
+            langs: vec!["en".into()],
+            ..Default::default()
+        };
+        let s = run(&cfg, &mut |_| {}, &AtomicBool::new(false)).unwrap();
+        let e = read_entries(&s.log_dir.join("audit.jsonl"));
+        let l = linked(&e);
+        assert_eq!(l.len(), 1);
+        assert_eq!(l[0]["items"]["matched"], 3, "{}", l[0]);
     }
 
     #[test]
