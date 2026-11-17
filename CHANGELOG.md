@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.5.0](https://github.com/Panacota96/rv-hashinv/compare/v0.4.2...v0.5.0) (2026-11-17)
+
+
+### Features
+
+* **core:** link an RV Triage package to its collection at intake ([#21](https://github.com/Panacota96/rv-hashinv/issues/21)) ([50664c8](https://github.com/Panacota96/rv-hashinv/commit/50664c855e61b1421b34089f417bcaad3d691703))
+
 ## [0.4.2](https://github.com/Panacota96/rv-hashinv/compare/v0.4.1...v0.4.2) (2026-11-14)
 
 
