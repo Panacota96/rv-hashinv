@@ -519,12 +519,7 @@ mod tests {
         let t = tempfile::tempdir().unwrap();
         let pkg = package(&t.path().join("usb"));
         let list = t.path().join("list.txt");
-        std::fs::write(
-            &list,
-            format!("{}{}", pkg.display(), '
-'),
-        )
-        .unwrap();
+        std::fs::write(&list, format!("{}\n", pkg.display())).unwrap();
         let cfg = RunConfig {
             input_list: Some(list),
             recursive: true,
