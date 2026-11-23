@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.6.1](https://github.com/Panacota96/rv-hashinv/compare/v0.6.0...v0.6.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **analyzer:** confirm the 2-byte MZ and GZIP signatures before reporting them ([#27](https://github.com/Panacota96/rv-hashinv/issues/27)) ([bf2b8c8](https://github.com/Panacota96/rv-hashinv/commit/bf2b8c819232048b509e92d34ba9083e3a7ee073))
+
 ## [0.6.0](https://github.com/Panacota96/rv-hashinv/compare/v0.5.1...v0.6.0) (2026-11-21)
 
 
