@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Entries are generated from
 [Conventional Commits](https://www.conventionalcommits.org/) by release-please and reviewed by a human.
 
+## [0.6.2](https://github.com/Panacota96/rv-hashinv/compare/v0.6.1...v0.6.2) (2026-11-24)
+
+
+### Performance Improvements
+
+* **verify:** stream the audit log instead of holding every entry ([#29](https://github.com/Panacota96/rv-hashinv/issues/29)) ([e90bde3](https://github.com/Panacota96/rv-hashinv/commit/e90bde3744bebc58656b70f69c3a442ee28ce187))
+
 ## [0.6.1](https://github.com/Panacota96/rv-hashinv/compare/v0.6.0...v0.6.1) (2026-11-23)
 
 
