@@ -4,7 +4,9 @@
 //! `timestamp`) are only parsed, here and in the unit test of src/main.rs.
 
 use assert_cmd::Command;
+use rv_hashinv_core::{CASE_ROLE, CaseRole, RunConfig, run};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
 
 const TOOL: &str = "rv-hashinv";
 /// The run id the examples use; replaced by a real run id of the same folder.
@@ -36,13 +38,29 @@ fn examples(help: &str) -> Vec<String> {
     let Some(section) = help.split("EXAMPLES:\n").nth(1) else {
         return vec![];
     };
-    section
+    // Commands are indented by 4. clap wraps a long one onto further lines with the same indent (a longer
+    // tool name after scaffolding can push it past the width): those lines continue the command.
+    let prefix = format!("{} ", TOOL);
+    let mut out: Vec<String> = vec![];
+    let mut in_command = false;
+    for l in section
         .lines()
         .take_while(|l| l.is_empty() || l.starts_with(' '))
-        .map(str::trim)
-        .filter(|l| l.starts_with(&format!("{} ", TOOL)))
-        .map(str::to_string)
-        .collect()
+    {
+        let t = l.trim();
+        if t.starts_with(&prefix) {
+            out.push(t.to_string());
+            in_command = true;
+        } else if in_command && l.starts_with("    ") && !t.is_empty() {
+            if let Some(last) = out.last_mut() {
+                last.push(' ');
+                last.push_str(t);
+            }
+        } else {
+            in_command = false;
+        }
+    }
+    out
 }
 
 fn split_args(line: &str) -> Vec<String> {
@@ -130,6 +148,21 @@ fn help_examples_run_against_the_sample_evidence() {
     copy_dir(&sample, &t.join("D-evidence"));
     std::fs::create_dir_all(t.join("evidence")).unwrap();
     std::fs::copy(sample.join("acta.txt"), t.join("evidence/contract.pdf")).unwrap();
+    if CASE_ROLE != CaseRole::Intake {
+        // An analysis tool (CASE_ROLE flipped by the scaffold) does not register evidence: register the sample
+        // in the example case first, through the core with the intake role, so `--evidence E0001,E0002` exists.
+        let cfg = RunConfig {
+            inputs: vec![t.join("D-evidence")],
+            recursive: true,
+            actor: "seed".into(),
+            case_id: Some("CASE-014".into()),
+            jurisdiction: "fr".into(),
+            case_dir: Some(t.join("CASE-014")),
+            case_role: CaseRole::Intake,
+            ..Default::default()
+        };
+        run(&cfg, &mut |_| {}, &AtomicBool::new(false)).unwrap();
+    }
     std::fs::write(
         t.join("files.txt"),
         "# sample list\nevidence/contract.pdf\n",

@@ -986,13 +986,29 @@ mod tests {
         let Some(section) = help.split("EXAMPLES:\n").nth(1) else {
             return vec![];
         };
-        section
+        // Commands are indented by 4. clap wraps a long one onto further lines with the same indent (a longer
+        // tool name after scaffolding can push it past the width): those lines continue the command.
+        let prefix = format!("{} ", TOOL_NAME);
+        let mut out: Vec<String> = vec![];
+        let mut in_command = false;
+        for l in section
             .lines()
             .take_while(|l| l.is_empty() || l.starts_with(' '))
-            .map(str::trim)
-            .filter(|l| l.starts_with(&format!("{} ", TOOL_NAME)))
-            .map(str::to_string)
-            .collect()
+        {
+            let t = l.trim();
+            if t.starts_with(&prefix) {
+                out.push(t.to_string());
+                in_command = true;
+            } else if in_command && l.starts_with("    ") && !t.is_empty() {
+                if let Some(last) = out.last_mut() {
+                    last.push(' ');
+                    last.push_str(t);
+                }
+            } else {
+                in_command = false;
+            }
+        }
+        out
     }
 
     /// Splits an example like a shell would for these simple lines: whitespace, "double quotes", and a final
