@@ -195,7 +195,6 @@
     "add_folder": "Add folder…",
     "path_hint": "…or type / paste a path and press Enter",
     "add_path": "Add path",
-    "remove": "Remove selected",
     "no_evidence": "No evidence added yet.",
     "subfolders": "Include subfolders",
     "hashes": "2. Hash algorithms (choose 1 or 2)",

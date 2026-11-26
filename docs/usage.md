@@ -217,12 +217,20 @@ conclude" is the overreach to avoid in a report. The exact wording printed in re
 | `DUPLICATE` (info) | The group in `statistics.*` (paths) and `hashes.csv`; check the primary algorithm is SHA-256 | Who copied the file, when, or which copy is the original |
 | `UNREADABLE` (high) | The OS error (permissions, locks, path length); re-acquire and re-run; unreadable items are **not** registered | That the file is damaged or was hidden |
 | `REGISTRY_PATH_CONTENT_CHANGED` (medium) | Both evidence ids in `registry.csv`; which run registered each; how the source changed between intakes | Which version is the original, or why it changed |
+| `COLLECTION_DIGEST_MISMATCH` (high, RV Triage package) | The algorithm, the digest the collection recorded and the digest now, and the collection's run id (all in the finding); re-hash the file in the package by hand; how the package travelled from the collected machine | When, by whom or why it changed, or that the collection was wrong |
+| `COLLECTION_LOG_UNVERIFIED` (medium, RV Triage package) | The state and reason in the finding (`missing`: no readable collection log, e.g. the package was copied without its `logs/`; `chain_broken`: the collection log was edited); copy the whole collection output folder, with its `logs/`, and scan its `reports/<RUN-ID>/package` folder again | That any file was altered |
 <!-- /forge:domain -->
 
 | Code (case folder, analysis tools) | Check next | Do not conclude |
 | --- | --- | --- |
 | `EVIDENCE_HASH_MISMATCH_WITH_CASE` (high) | Expected and actual digest in the finding; re-hash the file and the intake copy by hand; check storage, transfers and who had access since intake (case log) | Who changed it, when, or that it was deliberate |
 | `EVIDENCE_NOT_IN_CASE_REGISTRY` (medium) | Whether the file should have gone through intake; register it (intake run) if it is new evidence | That the file is altered or irrelevant |
+
+An input folder that holds a `manifest.json` (format `rakvor.triage-manifest/1`) is an **RV Triage package**:
+before registering its files, the intake verifies the collection's own audit log and compares every file with the
+digest recorded on the collected machine, which can raise the two `COLLECTION_*` codes above. Copy the whole
+collection output folder (with its `logs/`), then scan its `reports/<RUN-ID>/package` folder: the package is
+recognised only when it is itself an input (`-i`), not when you scan a folder above it; details in [case-folder.md](case-folder.md#rv-triage-packages).
 
 ## 5. Working without a case folder
 
@@ -398,6 +406,7 @@ SHA256).Hash.ToLower()` and search the value in `audit.jsonl`.
 | `timestamp` | obtained and logged | TSA unreachable (nothing changed) | — | log missing, broken or unreadable (nothing added) | — |
 | `self-test` | all pass | a failure: do not use the build | — | — | — |
 | `describe` | description printed | — | usage error (unknown option) | — | — |
+| `update-check` | this is the latest release, or the check is turned off | the check could not be made (offline, 5 s timeout, no published release): nothing changed | usage error (unknown option) | a newer release is published (the output names it and its release page) | — |
 
 ### Messages
 
@@ -424,3 +433,26 @@ SHA256).Hash.ToLower()` and search the value in `audit.jsonl`.
 | `refusing to append to a broken audit log` (`timestamp`) | The log was edited; investigate with `verify-log`; do not repair |
 | `no audit log at …: nothing to timestamp` (`timestamp`) | Point at the run's `logs\<RUN-ID>` folder (or its `audit.jsonl`) |
 | `truncated: …` (`verify-log`) | Entries were removed from the end of the log after the timestamp or the case record was made; investigate, do not repair |
+
+## 10. Release check
+
+`rv-hashinv update-check` tells you whether a newer release is published; it never downloads or installs anything.
+`--json` prints one object (schema `rakvor.update-check/1`) for scripts.
+
+- **What is sent:** one HTTPS GET of `https://github.com/Panacota96/rv-hashinv/releases/latest`, with
+  `User-Agent: rv-hashinv/<version>` and nothing else: no case, evidence, examiner or machine data. No other
+  command contacts the network for it; the desktop app checks once at start-up ([usage-gui.md](usage-gui.md)).
+- **Not audited:** the check is not part of a run and is not written to any audit log.
+- **Turn it off:** `RV_NO_UPDATE_CHECK=1` (any value but empty or `0`), or the file `update-check-off` in
+  `%APPDATA%\Rakvor` (RV Hub's setting writes it): off for every Rakvor tool on this PC.
+- **Exit codes:** 0 latest (or off), 3 newer release published, 1 could not check (see [Exit codes](#exit-codes)).
+  Before using a new release, verify it as in [installation.md](installation.md#2-verify-the-download).
+
+```mermaid
+sequenceDiagram
+    participant U as rv-hashinv update-check
+    participant G as github.com (public release page)
+    U->>G: HTTPS GET releases/latest, User-Agent rv-hashinv/VERSION
+    G-->>U: redirect to the latest tag (read, not followed)
+    U-->>U: compare versions: exit 0 latest or off, 3 newer, 1 could not check
+```

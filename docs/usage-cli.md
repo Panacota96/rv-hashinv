@@ -9,6 +9,10 @@ flowchart LR
   A --> D[self-test]
   A --> T[timestamp]
   A --> V[verify-case]
+  A --> U[update-check]
+  A --> R[describe]
+  U -.-> G((github.com))
+  R -.-> H((RV Hub))
   T --> E
   B --> E[(logs/RUN-ID)]
   B --> F[(reports/RUN-ID)]
@@ -27,7 +31,8 @@ DESCRIPTION:
     3. flags empty files, extensions that do not match the content, programs hidden under
        another name and duplicated content;
     4. writes a technical report and a customer-friendly summary (HTML, PDF and JSON).
-  Each run also writes a statistics report and an audit trail under <OUT>/logs/<RUN-ID>/.
+  Each run also writes a statistics report under <OUT>/reports/<RUN-ID>/ and an audit trail
+  under <OUT>/logs/<RUN-ID>/.
   Every action is appended to a hash-chained log that `rv-hashinv verify-log` can check later.
 
   CASE FOLDER (--case-dir): Rakvor tools share one folder per case. rv-hashinv is the intake tool:
@@ -69,7 +74,8 @@ DESCRIPTION:
     3. flags empty files, extensions that do not match the content, programs hidden under
        another name and duplicated content;
     4. writes a technical report and a customer-friendly summary (HTML, PDF and JSON).
-  Each run also writes a statistics report and an audit trail under <OUT>/logs/<RUN-ID>/.
+  Each run also writes a statistics report under <OUT>/reports/<RUN-ID>/ and an audit trail
+  under <OUT>/logs/<RUN-ID>/.
   Every action is appended to a hash-chained log that `rv-hashinv verify-log` can check later.
 
   CASE FOLDER (--case-dir): Rakvor tools share one folder per case. rv-hashinv is the intake tool:

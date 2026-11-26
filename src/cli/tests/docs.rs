@@ -375,3 +375,194 @@ fn translated_quick_guides_have_the_same_headings_and_steps() {
         );
     }
 }
+
+/// A page in the three languages (`docs/<name>.md`, `.es.md`, `.fr.md`).
+fn page(name: &str, lang: &str) -> String {
+    match lang {
+        "en" => read(&format!("docs/{}.md", name)),
+        l => read(&format!("docs/{}.{}.md", name, l)),
+    }
+}
+
+#[test]
+fn usage_guide_has_an_exit_code_row_per_command_and_explains_every_finding_code() {
+    let commands = documented_commands();
+    let en: serde_json::Value = serde_json::from_str(&read("i18n/en.json")).unwrap();
+    let codes: Vec<&String> = en["findings"].as_object().unwrap().keys().collect();
+    assert!(codes.len() >= 10, "{:?}", codes);
+    for lang in LANGS {
+        let text = page("usage", lang);
+        for c in &commands {
+            assert!(
+                text.lines().any(|l| l.starts_with(&format!("| `{}` |", c))),
+                "docs/usage ({}) has no exit-code row for `{}`",
+                lang,
+                c
+            );
+        }
+        for code in &codes {
+            assert!(
+                text.lines()
+                    .any(|l| l.starts_with(&format!("| `{}` (", code))),
+                "docs/usage ({}) does not explain the finding {} in section 4",
+                lang,
+                code
+            );
+        }
+        // collection::detect only recognises a package given itself as an input, not a folder above it.
+        assert!(
+            text.contains("`reports/<RUN-ID>/package`"),
+            "docs/usage ({}) must say to scan the package folder reports/<RUN-ID>/package",
+            lang
+        );
+        assert!(
+            has_token(&text, "rv-hashinv update-check") && text.contains("RV_NO_UPDATE_CHECK"),
+            "docs/usage ({}) does not describe update-check and how to turn it off",
+            lang
+        );
+    }
+}
+
+#[test]
+fn gui_guide_lists_every_audit_event_labels_and_numbered_steps() {
+    let state = read("src/gui/src/state.rs");
+    let events: BTreeSet<String> = state
+        .split("note(")
+        .skip(1)
+        .filter_map(|p| p.trim_start().strip_prefix('"'))
+        .filter_map(|p| p.split('"').next())
+        .filter(|e| e.starts_with("ui_"))
+        .map(str::to_string)
+        .collect();
+    assert!(events.len() >= 10, "{:?}", events);
+    // The window's labels the guide names: every button and tick box, and the trust fields.
+    let mut keys: Vec<String> = gui_controls()
+        .into_iter()
+        .filter_map(|c| match c {
+            Label::Key(k) => Some(k),
+            Label::Literal(_) => None,
+        })
+        .collect();
+    keys.extend(["jurisdiction", "sign_cert", "sign_pass"].map(String::from));
+    for lang in LANGS {
+        let text = page("usage-gui", lang);
+        for e in &events {
+            assert!(
+                text.contains(&format!("`{}`", e)),
+                "docs/usage-gui ({}) does not list the audit event {}",
+                lang,
+                e
+            );
+        }
+        for k in &keys {
+            let label = ui_label(lang, k);
+            assert!(
+                text.contains(&format!("*{}", label)),
+                "docs/usage-gui ({}) does not name the control ui.{} by its label *{}*",
+                lang,
+                k,
+                label
+            );
+        }
+        let (_, steps) = shape(&text);
+        assert!(
+            steps >= 6,
+            "docs/usage-gui ({}) has {} numbered steps",
+            lang,
+            steps
+        );
+        // ui_start_clicked carries neither: the examiner is the audit `actor`, the case ID is in run_started.
+        assert!(
+            text.contains("`actor`") && text.contains("`run_started`"),
+            "docs/usage-gui ({}) must say where the examiner (actor) and case ID (run_started) are recorded",
+            lang
+        );
+        assert!(
+            text.contains("RV_NO_UPDATE_CHECK") && text.contains("update-check-off"),
+            "docs/usage-gui ({}) does not explain the start-up release check",
+            lang
+        );
+    }
+}
+
+#[test]
+fn cli_reference_diagram_has_every_command() {
+    let doc = run(&["docs-cli"]);
+    let diagram = doc
+        .split("```mermaid\n")
+        .nth(1)
+        .and_then(|d| d.split("```").next())
+        .expect("docs-cli starts with a Mermaid diagram");
+    for c in documented_commands() {
+        assert!(
+            diagram.contains(&format!("[{}]", c)),
+            "the docs-cli diagram has no node for `{}`",
+            c
+        );
+    }
+}
+
+#[test]
+fn top_level_help_names_where_each_output_is_written() {
+    let help = run(&["--help"]);
+    let line = help
+        .lines()
+        .find(|l| l.contains("statistics report"))
+        .expect("--help mentions the statistics report");
+    assert!(
+        line.contains("<OUT>/reports/<RUN-ID>/")
+            && !line.contains("statistics report and an audit"),
+        "--help: the statistics report is written under <OUT>/reports/<RUN-ID>/, not logs/: {}",
+        line
+    );
+}
+
+#[test]
+fn installation_guides_use_a_version_placeholder() {
+    for lang in LANGS {
+        let text = page("installation", lang);
+        for (i, l) in text.lines().enumerate() {
+            let concrete = ["rv-hashinv-", "checkout v"].iter().any(|p| {
+                l.match_indices(p).any(|(j, _)| {
+                    l[j + p.len()..]
+                        .chars()
+                        .next()
+                        .is_some_and(|c| c.is_ascii_digit())
+                })
+            });
+            assert!(
+                !concrete,
+                "docs/installation ({}) line {}: use X.Y.Z, not a fixed version: {}",
+                lang,
+                i + 1,
+                l
+            );
+        }
+    }
+}
+
+/// i18n keys that are not drawn by the GUI but kept on purpose.
+const UNUSED_UI_KEYS_ALLOWED: &[&str] = &["window_title"];
+
+#[test]
+fn every_gui_string_is_used_by_the_gui() {
+    let gui: String = [
+        "src/gui/src/app.rs",
+        "src/gui/src/state.rs",
+        "src/gui/src/main.rs",
+    ]
+    .iter()
+    .map(|p| read(p))
+    .collect();
+    let en: serde_json::Value = serde_json::from_str(&read("i18n/en.json")).unwrap();
+    for k in en["ui"].as_object().unwrap().keys() {
+        if UNUSED_UI_KEYS_ALLOWED.contains(&k.as_str()) {
+            continue;
+        }
+        assert!(
+            gui.contains(&format!("\"{}\"", k)),
+            "i18n ui.{} is not used by the GUI: remove it or draw it",
+            k
+        );
+    }
+}

@@ -229,12 +229,22 @@ trouve dans `i18n/fr.json` (ainsi que `en.json`, `es.json`).
 | `DUPLICATE` (information) | Le groupe dans `statistics.*` (chemins) et `hashes.csv` ; vérifiez que l'algorithme principal est SHA-256 | Qui a copié le fichier, quand, ou quelle copie est l'originale |
 | `UNREADABLE` (élevée) | L'erreur du système (droits, verrous, longueur du chemin) ; réacquérez et relancez ; les éléments illisibles ne sont **pas** enregistrés | Que le fichier soit endommagé ou ait été dissimulé |
 | `REGISTRY_PATH_CONTENT_CHANGED` (moyenne) | Les deux ID dans `registry.csv` ; quelle exécution a enregistré chacun ; comment la source a changé entre les enregistrements | Quelle version est l'originale, ou pourquoi elle a changé |
+| `COLLECTION_DIGEST_MISMATCH` (haute, paquet RV Triage) | L'algorithme, l'empreinte consignée par la collecte et l'empreinte actuelle, et l'ID d'exécution de la collecte (tous dans la constatation) ; recalculez à la main l'empreinte du fichier du paquet ; comment le paquet a voyagé depuis la machine collectée | Quand, par qui ou pourquoi il a changé, ni que la collecte était fausse |
+| `COLLECTION_LOG_UNVERIFIED` (moyenne, paquet RV Triage) | L'état et le motif dans la constatation (`missing` : aucun journal de collecte lisible, p. ex. le paquet a été copié sans son `logs/` ; `chain_broken` : le journal de la collecte a été modifié) ; copiez le dossier de sortie complet de la collecte, avec son `logs/`, et analysez de nouveau son dossier `reports/<RUN-ID>/package` | Qu'un fichier a été modifié |
 <!-- /forge:domain -->
 
 | Code (dossier de l'affaire, outils d'analyse) | À vérifier ensuite | Ne pas conclure |
 | --- | --- | --- |
 | `EVIDENCE_HASH_MISMATCH_WITH_CASE` (élevée) | Empreinte attendue et réelle dans la constatation ; recalculez à la main l'empreinte du fichier et de la copie enregistrée ; vérifiez le stockage, les transferts et qui y a eu accès depuis l'enregistrement (journal de l'affaire) | Qui l'a modifié, quand, ou que ce soit délibéré |
 | `EVIDENCE_NOT_IN_CASE_REGISTRY` (moyenne) | Si le fichier aurait dû passer par l'enregistrement ; enregistrez-le (exécution d'enregistrement) s'il s'agit d'un nouvel élément | Que le fichier soit altéré ou sans intérêt |
+
+Un dossier d'entrée qui contient un `manifest.json` (format `rakvor.triage-manifest/1`) est un **paquet RV
+Triage** : avant d'enregistrer ses fichiers, l'enregistrement vérifie le journal d'audit propre à la collecte et
+compare chaque fichier à l'empreinte consignée sur la machine collectée, ce qui peut produire les deux codes
+`COLLECTION_*` ci-dessus. Copiez le dossier de sortie complet de la collecte (avec son `logs/`), puis analysez son dossier
+`reports/<RUN-ID>/package` : le paquet n'est reconnu que s'il est lui-même une entrée (`-i`), pas quand vous analysez
+un dossier au-dessus ; détails dans
+[case-folder.md](case-folder.md#rv-triage-packages) (en anglais).
 
 ## 5. Travailler sans dossier d'affaire
 
@@ -416,6 +426,7 @@ donne `MISMATCH … statistics.json` et le code de sortie 3. Pour un seul fichie
 | `timestamp` | obtenu et consigné | TSA injoignable (rien n'a changé) | — | journal absent, rompu ou illisible (rien n'est ajouté) | — |
 | `self-test` | tout réussit | un échec : n'utilisez pas ce programme | — | — | — |
 | `describe` | description affichée | — | erreur d'utilisation (option inconnue) | — | — |
+| `update-check` | c'est la dernière version, ou la vérification est désactivée | la vérification n'a pas pu être faite (hors ligne, délai de 5 s, aucune version publiée) : rien n'a changé | erreur d'utilisation (option inconnue) | une version plus récente est publiée (la sortie la nomme avec sa page) | — |
 
 ### Messages
 
@@ -442,3 +453,28 @@ donne `MISMATCH … statistics.json` et le code de sortie 3. Pour un seul fichie
 | `refusing to append to a broken audit log` (`timestamp`) | Le journal a été modifié ; enquêtez avec `verify-log` ; ne réparez pas |
 | `no audit log at …: nothing to timestamp` (`timestamp`) | Indiquez le dossier `logs\<RUN-ID>` de l'exécution (ou son `audit.jsonl`) |
 | `truncated: …` (`verify-log`) | Des entrées ont été retirées de la fin du journal après l'horodatage ou la trace de l'affaire ; enquêtez, ne réparez pas |
+
+## 10. Vérification des versions
+
+`rv-hashinv update-check` indique si une version plus récente est publiée ; il ne télécharge ni n'installe jamais
+rien. `--json` affiche un objet (schéma `rakvor.update-check/1`) pour les scripts.
+
+- **Ce qui est envoyé :** une seule requête HTTPS GET de `https://github.com/Panacota96/rv-hashinv/releases/latest`,
+  avec `User-Agent: rv-hashinv/<version>` et rien d'autre : aucune donnée de l'affaire, des éléments de preuve, de
+  l'expert ou de la machine. Aucune autre commande ne contacte le réseau pour cela ; l'application de bureau vérifie
+  une fois au démarrage ([usage-gui.fr.md](usage-gui.fr.md)).
+- **Non auditée :** la vérification ne fait pas partie d'une exécution et n'est écrite dans aucun journal d'audit.
+- **La désactiver :** `RV_NO_UPDATE_CHECK=1` (toute valeur sauf vide ou `0`), ou le fichier `update-check-off` dans
+  `%APPDATA%\Rakvor` (le réglage de RV Hub l'écrit) : désactivée pour tous les outils Rakvor de ce PC.
+- **Codes de sortie :** 0 dernière version (ou désactivée), 3 version plus récente publiée, 1 vérification
+  impossible (voir [Codes de sortie](#codes-de-sortie)). Avant d'utiliser une nouvelle version, vérifiez-la comme
+  dans [installation.fr.md](installation.fr.md#2-vérifier-le-téléchargement).
+
+```mermaid
+sequenceDiagram
+    participant U as rv-hashinv update-check
+    participant G as github.com (page publique des versions)
+    U->>G: GET HTTPS releases/latest, User-Agent rv-hashinv/VERSION
+    G-->>U: redirection vers la dernière étiquette (lue, non suivie)
+    U-->>U: compare les versions : sortie 0 dernière ou désactivée, 3 plus récente, 1 vérification impossible
+```
