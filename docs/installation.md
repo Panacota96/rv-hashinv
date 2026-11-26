@@ -48,12 +48,14 @@ Release assets on the GitHub Releases page of the repository (`Panacota96/rv-has
 | `SHA256SUMS` | SHA-256 of the zip, the installer and the SBOM (`sha256sum` format: `<hash>  ./<file>`) |
 | `sbom.cdx.json` | CycloneDX software bill of materials (every Rust dependency and version) |
 
-Put them in one folder, e.g. `C:\Rakvor\downloads\rv-hashinv-0.1.0\`.
+Put them in one folder, e.g. `C:\Rakvor\downloads\rv-hashinv-X.Y.Z\`.
+In every command below, replace `X.Y.Z` with the version you downloaded (the release title on GitHub, e.g.
+`0.6.3`; `rv-hashinv --version` prints it once installed).
 
 ## 2. Verify the download
 
 ```powershell
-cd C:\Rakvor\downloads\rv-hashinv-0.1.0
+cd C:\Rakvor\downloads\rv-hashinv-X.Y.Z
 Get-Content .\SHA256SUMS | ForEach-Object {
     $hash, $name = $_ -split '\s+', 2
     $name = $name.TrimStart('*').Replace('./', '')
@@ -78,8 +80,8 @@ statement that this exact file was built by the repository's release workflow fr
 with internet access and the GitHub CLI:
 
 ```powershell
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo Panacota96/rv-hashinv
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64-setup.exe --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64.zip --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64-setup.exe --repo Panacota96/rv-hashinv
 ```
 
 The output names the workflow (`.github/workflows/release.yml`) and the source commit; record both. For an
@@ -111,7 +113,7 @@ Windows shows a confirmation dialog for the new root; accept it only if the fing
 first run. Check:
 
 ```powershell
-Get-AuthenticodeSignature .\rv-hashinv-0.1.0-windows-x64-setup.exe |
+Get-AuthenticodeSignature .\rv-hashinv-X.Y.Z-windows-x64-setup.exe |
     Format-List Status, StatusMessage, SignerCertificate, TimeStamperCertificate
 # after extracting the zip:
 Get-AuthenticodeSignature .\rv-hashinv.exe, .\rv-hashinv-gui.exe | Format-Table Status, Path
@@ -132,14 +134,14 @@ With the Windows SDK, `signtool verify /pa /v rv-hashinv.exe` gives the full cha
 
 ```powershell
 # only after steps 2–4
-Unblock-File .\rv-hashinv-0.1.0-windows-x64.zip
-Expand-Archive .\rv-hashinv-0.1.0-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-0.1.0
-cd C:\Rakvor\tools\rv-hashinv-0.1.0
+Unblock-File .\rv-hashinv-X.Y.Z-windows-x64.zip
+Expand-Archive .\rv-hashinv-X.Y.Z-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-X.Y.Z
+cd C:\Rakvor\tools\rv-hashinv-X.Y.Z
 .\rv-hashinv.exe --version
 ```
 
 Keep one folder per version so a past case can be re-run with the exact version recorded in its
-`environment.json`. Optional, current session only: `$env:Path += ";C:\Rakvor\tools\rv-hashinv-0.1.0"`.
+`environment.json`. Optional, current session only: `$env:Path += ";C:\Rakvor\tools\rv-hashinv-X.Y.Z"`.
 
 ### 5b. Installer (per-user, no administrator)
 
@@ -151,7 +153,7 @@ two tasks: **Add the rv-hashinv command to PATH** (user PATH, checked on first i
 Unattended:
 
 ```powershell
-.\rv-hashinv-0.1.0-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
+.\rv-hashinv-X.Y.Z-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
 ```
 
 The installer copies the executables, README, LICENSE, COMMERCIAL.md, NOTICE, CHANGELOG, `docs\` and the sample evidence
@@ -246,7 +248,7 @@ restriction is not enforced by the OS; on a connected workstation, a Windows Fir
 ```powershell
 git clone https://github.com/Panacota96/rv-hashinv.git
 cd rv-hashinv
-git checkout v0.1.0                       # the tag of the release under review
+git checkout vX.Y.Z                       # the tag of the release under review
 rustc --version                           # must print the pinned 1.97.0
 cargo build --release --locked -p rv-hashinv-cli -p rv-hashinv-gui
 .\target\release\rv-hashinv.exe self-test

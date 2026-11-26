@@ -226,12 +226,20 @@ concluir" es la extralimitación que hay que evitar en un informe. El texto exac
 | `DUPLICATE` (informativa) | El grupo en `statistics.*` (rutas) y `hashes.csv`; verifique que el algoritmo principal sea SHA-256 | Quién copió el archivo, cuándo, o cuál copia es la original |
 | `UNREADABLE` (alta) | El error del SO (permisos, bloqueos, longitud de la ruta); vuelva a adquirir y a ejecutar; los elementos ilegibles **no** se registran | Que el archivo esté dañado o haya sido ocultado |
 | `REGISTRY_PATH_CONTENT_CHANGED` (media) | Ambos ID de evidencia en `registry.csv`; qué ejecución registró cada uno; cómo cambió el origen entre recepciones | Cuál versión es la original, o por qué cambió |
+| `COLLECTION_DIGEST_MISMATCH` (alta, paquete de RV Triage) | El algoritmo, el digest que registró la recolección y el digest actual, y el ID de ejecución de la recolección (todo en el hallazgo); vuelva a calcular a mano el hash del archivo del paquete; cómo viajó el paquete desde el equipo recolectado | Cuándo, quién o por qué cambió, ni que la recolección estuviera mal |
+| `COLLECTION_LOG_UNVERIFIED` (media, paquete de RV Triage) | El estado y el motivo en el hallazgo (`missing`: el paquete se copió sin su `logs/`; `chain_broken`: el log de la recolección fue editado); copie la carpeta de salida completa de la recolección, con su `logs/`, y vuelva a ejecutar | Que algún archivo haya sido alterado |
 <!-- /forge:domain -->
 
 | Código (carpeta del caso, herramientas de análisis) | Verificar después | No concluir |
 | --- | --- | --- |
 | `EVIDENCE_HASH_MISMATCH_WITH_CASE` (alta) | Hash esperado y real en el hallazgo; vuelva a calcular a mano el hash del archivo y de la copia de la recepción; revise el almacenamiento, las transferencias y quién tuvo acceso desde la recepción (log del caso) | Quién lo cambió, cuándo, o que haya sido deliberado |
 | `EVIDENCE_NOT_IN_CASE_REGISTRY` (media) | Si el archivo debía pasar por la recepción; regístrelo (ejecución de recepción) si es evidencia nueva | Que el archivo esté alterado o sea irrelevante |
+
+Una carpeta de entrada que contiene un `manifest.json` (formato `rakvor.triage-manifest/1`) es un **paquete de RV
+Triage**: antes de registrar sus archivos, la recepción verifica el propio log de auditoría de la recolección y compara
+cada archivo con el digest registrado en el equipo recolectado, lo que puede generar los dos códigos `COLLECTION_*`
+de arriba. Analice la carpeta de salida completa de la recolección, no solo el paquete; detalles en
+[case-folder.md](case-folder.md#rv-triage-packages) (en inglés).
 
 ## 5. Trabajar sin carpeta del caso
 
@@ -413,6 +421,7 @@ Con la ejecución de ejemplo (3 elementos, un idioma) se verifican 38 archivos; 
 | `timestamp` | obtenido y registrado | TSA inaccesible (no cambió nada) | — | log ausente, roto o ilegible (no se agrega nada) | — |
 | `self-test` | todo pasa | un fallo: no use este programa | — | — | — |
 | `describe` | descripción impresa | — | error de uso (opción desconocida) | — | — |
+| `update-check` | es la versión más reciente, o la comprobación está desactivada | no se pudo comprobar (sin red, tiempo de espera de 5 s, ninguna versión publicada): nada cambió | error de uso (opción desconocida) | hay una versión más nueva publicada (la salida la nombra junto con su página) | — |
 
 ### Mensajes
 
@@ -439,3 +448,28 @@ Con la ejecución de ejemplo (3 elementos, un idioma) se verifican 38 archivos; 
 | `refusing to append to a broken audit log` (`timestamp`) | El log fue editado; investigue con `verify-log`; no repare |
 | `no audit log at …: nothing to timestamp` (`timestamp`) | Indique la carpeta `logs\<RUN-ID>` de la ejecución (o su `audit.jsonl`) |
 | `truncated: …` (`verify-log`) | Se quitaron entradas del final del log después de hacerse el sello de tiempo o el registro del caso; investigue, no repare |
+
+## 10. Comprobación de versión
+
+`rv-hashinv update-check` indica si hay una versión más nueva publicada; nunca descarga ni instala nada. `--json`
+imprime un objeto (esquema `rakvor.update-check/1`) para scripts.
+
+- **Qué se envía:** un único GET HTTPS de `https://github.com/Panacota96/rv-hashinv/releases/latest`, con
+  `User-Agent: rv-hashinv/<version>` y nada más: ningún dato del caso, la evidencia, el perito o el equipo. Ningún
+  otro comando contacta la red para esto; la aplicación de escritorio comprueba una vez al arrancar
+  ([usage-gui.es.md](usage-gui.es.md)).
+- **Sin auditoría:** la comprobación no forma parte de una ejecución y no se escribe en ningún log de auditoría.
+- **Desactivarla:** `RV_NO_UPDATE_CHECK=1` (cualquier valor salvo vacío o `0`), o el archivo `update-check-off` en
+  `%APPDATA%\Rakvor` (lo escribe el ajuste de RV Hub): desactivada para todas las herramientas Rakvor de este PC.
+- **Códigos de salida:** 0 la más reciente (o desactivada), 3 hay una versión más nueva, 1 no se pudo comprobar (ver
+  [Códigos de salida](#códigos-de-salida)). Antes de usar una versión nueva, verifíquela como en
+  [installation.es.md](installation.es.md#2-verificar-la-descarga).
+
+```mermaid
+sequenceDiagram
+    participant U as rv-hashinv update-check
+    participant G as github.com (página pública de versiones)
+    U->>G: GET HTTPS releases/latest, User-Agent rv-hashinv/VERSION
+    G-->>U: redirección a la última etiqueta (se lee, no se sigue)
+    U-->>U: compara versiones: salida 0 la más reciente o desactivada, 3 más nueva, 1 no se pudo comprobar
+```

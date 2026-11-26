@@ -195,7 +195,6 @@
     "add_folder": "Ajouter un dossier…",
     "path_hint": "…ou saisissez / collez un chemin puis Entrée",
     "add_path": "Ajouter le chemin",
-    "remove": "Retirer la sélection",
     "no_evidence": "Aucun élément ajouté.",
     "subfolders": "Inclure les sous-dossiers",
     "hashes": "2. Algorithmes d'empreinte (1 ou 2)",

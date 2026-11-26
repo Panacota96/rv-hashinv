@@ -195,7 +195,6 @@
     "add_folder": "Agregar carpeta…",
     "path_hint": "…o escriba / pegue una ruta y presione Enter",
     "add_path": "Agregar ruta",
-    "remove": "Quitar seleccionados",
     "no_evidence": "Todavía no hay evidencia.",
     "subfolders": "Incluir subcarpetas",
     "hashes": "2. Algoritmos de hash (elija 1 o 2)",

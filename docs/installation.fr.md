@@ -52,12 +52,14 @@ Fichiers de la version sur la page GitHub Releases du dépôt (`Panacota96/rv-ha
 | `SHA256SUMS` | SHA-256 du zip, du programme d'installation et du SBOM (format `sha256sum` : `<empreinte>  ./<fichier>`) |
 | `sbom.cdx.json` | Nomenclature logicielle CycloneDX (chaque dépendance Rust et sa version) |
 
-Placez-les dans un même dossier, p. ex. `C:\Rakvor\downloads\rv-hashinv-0.1.0\`.
+Placez-les dans un même dossier, p. ex. `C:\Rakvor\downloads\rv-hashinv-X.Y.Z\`.
+Dans chaque commande ci-dessous, remplacez `X.Y.Z` par la version téléchargée (le titre de la version sur GitHub,
+p. ex. `0.6.3` ; `rv-hashinv --version` l'affiche une fois installé).
 
 ## 2. Vérifier le téléchargement
 
 ```powershell
-cd C:\Rakvor\downloads\rv-hashinv-0.1.0
+cd C:\Rakvor\downloads\rv-hashinv-X.Y.Z
 Get-Content .\SHA256SUMS | ForEach-Object {
     $hash, $name = $_ -split '\s+', 2
     $name = $name.TrimStart('*').Replace('./', '')
@@ -82,8 +84,8 @@ Chaque zip et programme d'installation porte une attestation de provenance de co
 workflow de publication du dépôt à partir d'un commit donné. Sur un poste connecté à internet, avec la CLI GitHub :
 
 ```powershell
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo Panacota96/rv-hashinv
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64-setup.exe --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64.zip --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64-setup.exe --repo Panacota96/rv-hashinv
 ```
 
 La sortie nomme le workflow (`.github/workflows/release.yml`) et le commit source ; notez les deux. Pour un
@@ -116,7 +118,7 @@ Sans la racine, `Get-AuthenticodeSignature` indique `UnknownError` (chaîne vers
 SmartScreen peut quand même avertir au premier lancement. Vérifiez :
 
 ```powershell
-Get-AuthenticodeSignature .\rv-hashinv-0.1.0-windows-x64-setup.exe |
+Get-AuthenticodeSignature .\rv-hashinv-X.Y.Z-windows-x64-setup.exe |
     Format-List Status, StatusMessage, SignerCertificate, TimeStamperCertificate
 # after extracting the zip:
 Get-AuthenticodeSignature .\rv-hashinv.exe, .\rv-hashinv-gui.exe | Format-Table Status, Path
@@ -137,14 +139,14 @@ Avec le Windows SDK, `signtool verify /pa /v rv-hashinv.exe` donne la chaîne co
 
 ```powershell
 # only after steps 2–4
-Unblock-File .\rv-hashinv-0.1.0-windows-x64.zip
-Expand-Archive .\rv-hashinv-0.1.0-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-0.1.0
-cd C:\Rakvor\tools\rv-hashinv-0.1.0
+Unblock-File .\rv-hashinv-X.Y.Z-windows-x64.zip
+Expand-Archive .\rv-hashinv-X.Y.Z-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-X.Y.Z
+cd C:\Rakvor\tools\rv-hashinv-X.Y.Z
 .\rv-hashinv.exe --version
 ```
 
 Gardez un dossier par version, afin de pouvoir relancer une ancienne affaire avec la version exacte consignée dans son
-`environment.json`. Facultatif, pour la session en cours seulement : `$env:Path += ";C:\Rakvor\tools\rv-hashinv-0.1.0"`.
+`environment.json`. Facultatif, pour la session en cours seulement : `$env:Path += ";C:\Rakvor\tools\rv-hashinv-X.Y.Z"`.
 
 ### 5b. Programme d'installation (par utilisateur, sans administrateur)
 
@@ -156,7 +158,7 @@ première installation) et une icône sur le bureau. Ouvrez ensuite un **nouveau
 Sans intervention :
 
 ```powershell
-.\rv-hashinv-0.1.0-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
+.\rv-hashinv-X.Y.Z-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
 ```
 
 Le programme d'installation copie les exécutables, README, LICENSE, COMMERCIAL.md, NOTICE, CHANGELOG, `docs\` et les
@@ -255,7 +257,7 @@ réseau n'est pas imposée par le système ; sur un poste connecté, une règle 
 ```powershell
 git clone https://github.com/Panacota96/rv-hashinv.git
 cd rv-hashinv
-git checkout v0.1.0                       # the tag of the release under review
+git checkout vX.Y.Z                       # the tag of the release under review
 rustc --version                           # must print the pinned 1.97.0
 cargo build --release --locked -p rv-hashinv-cli -p rv-hashinv-gui
 .\target\release\rv-hashinv.exe self-test

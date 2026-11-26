@@ -51,12 +51,14 @@ Archivos de la versión en la página GitHub Releases del repositorio (`Panacota
 | `SHA256SUMS` | SHA-256 del zip, del instalador y del SBOM (formato `sha256sum`: `<hash>  ./<archivo>`) |
 | `sbom.cdx.json` | Lista de materiales de software CycloneDX (cada dependencia Rust y su versión) |
 
-Póngalos en una carpeta, p. ej. `C:\Rakvor\downloads\rv-hashinv-0.1.0\`.
+Póngalos en una carpeta, p. ej. `C:\Rakvor\downloads\rv-hashinv-X.Y.Z\`.
+En cada comando de abajo, sustituya `X.Y.Z` por la versión que descargó (el título de la versión en GitHub, p. ej.
+`0.6.3`; `rv-hashinv --version` la imprime una vez instalada).
 
 ## 2. Verificar la descarga
 
 ```powershell
-cd C:\Rakvor\downloads\rv-hashinv-0.1.0
+cd C:\Rakvor\downloads\rv-hashinv-X.Y.Z
 Get-Content .\SHA256SUMS | ForEach-Object {
     $hash, $name = $_ -split '\s+', 2
     $name = $name.TrimStart('*').Replace('./', '')
@@ -81,8 +83,8 @@ una declaración firmada de que ese archivo exacto lo compiló el flujo de publi
 commit dado. En un equipo con acceso a internet y la CLI de GitHub:
 
 ```powershell
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64.zip --repo Panacota96/rv-hashinv
-gh attestation verify .\rv-hashinv-0.1.0-windows-x64-setup.exe --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64.zip --repo Panacota96/rv-hashinv
+gh attestation verify .\rv-hashinv-X.Y.Z-windows-x64-setup.exe --repo Panacota96/rv-hashinv
 ```
 
 La salida nombra el flujo de trabajo (`.github/workflows/release.yml`) y el commit de origen; anote ambos. Para un
@@ -114,7 +116,7 @@ Windows muestra un cuadro de confirmación para la nueva raíz; acéptelo solo s
 igualmente en la primera ejecución. Verifique:
 
 ```powershell
-Get-AuthenticodeSignature .\rv-hashinv-0.1.0-windows-x64-setup.exe |
+Get-AuthenticodeSignature .\rv-hashinv-X.Y.Z-windows-x64-setup.exe |
     Format-List Status, StatusMessage, SignerCertificate, TimeStamperCertificate
 # after extracting the zip:
 Get-AuthenticodeSignature .\rv-hashinv.exe, .\rv-hashinv-gui.exe | Format-Table Status, Path
@@ -135,14 +137,14 @@ Con el Windows SDK, `signtool verify /pa /v rv-hashinv.exe` da la cadena complet
 
 ```powershell
 # only after steps 2–4
-Unblock-File .\rv-hashinv-0.1.0-windows-x64.zip
-Expand-Archive .\rv-hashinv-0.1.0-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-0.1.0
-cd C:\Rakvor\tools\rv-hashinv-0.1.0
+Unblock-File .\rv-hashinv-X.Y.Z-windows-x64.zip
+Expand-Archive .\rv-hashinv-X.Y.Z-windows-x64.zip -DestinationPath C:\Rakvor\tools\rv-hashinv-X.Y.Z
+cd C:\Rakvor\tools\rv-hashinv-X.Y.Z
 .\rv-hashinv.exe --version
 ```
 
 Conserve una carpeta por versión para poder volver a ejecutar un caso antiguo con la versión exacta registrada en su
-`environment.json`. Opcional, solo para la sesión actual: `$env:Path += ";C:\Rakvor\tools\rv-hashinv-0.1.0"`.
+`environment.json`. Opcional, solo para la sesión actual: `$env:Path += ";C:\Rakvor\tools\rv-hashinv-X.Y.Z"`.
 
 ### 5b. Instalador (por usuario, sin administrador)
 
@@ -154,7 +156,7 @@ icono en el escritorio. Abra luego una terminal **nueva** para que el PATH se ap
 Sin intervención:
 
 ```powershell
-.\rv-hashinv-0.1.0-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
+.\rv-hashinv-X.Y.Z-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="addtopath"
 ```
 
 El instalador copia los ejecutables, README, LICENSE, COMMERCIAL.md, NOTICE, CHANGELOG, `docs\` y la evidencia de
@@ -251,7 +253,7 @@ no impone la restricción de red; en un equipo conectado, una regla de salida de
 ```powershell
 git clone https://github.com/Panacota96/rv-hashinv.git
 cd rv-hashinv
-git checkout v0.1.0                       # the tag of the release under review
+git checkout vX.Y.Z                       # the tag of the release under review
 rustc --version                           # must print the pinned 1.97.0
 cargo build --release --locked -p rv-hashinv-cli -p rv-hashinv-gui
 .\target\release\rv-hashinv.exe self-test
