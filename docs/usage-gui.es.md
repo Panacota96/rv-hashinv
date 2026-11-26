@@ -28,8 +28,9 @@ flowchart TD
    como `ui_input_added` / `ui_input_removed` y pasa al log de auditoría cuando empieza la ejecución.
 2. **Elija los algoritmos de hash.** Marque uno o dos (conserve `sha256`). Se guarda como `ui_hash_selection_changed`.
 3. **Configure los informes.** *Idioma de los informes*, *Carpeta de salida* (o una **Carpeta del caso**, ver más
-   abajo), *Perito* e *ID del caso*. Se guardan como `ui_language_changed` y `ui_case_dir_changed`; el perito y el
-   ID del caso se registran en `ui_start_clicked` y se imprimen en cada informe y formato de custodia.
+   abajo), *Perito* e *ID del caso*. Se guardan como `ui_language_changed` y `ui_case_dir_changed`; el perito se
+   registra como `actor` de cada entrada de auditoría y el ID del caso en `run_started`; ambos se imprimen en cada
+   informe y formato de custodia.
 4. **Configure las opciones de confianza.** *Formato de custodia* (Colombia / Francia), *Sello de tiempo confiable*
    y la dirección de su TSA, *Certificado de firma (.p12/.pfx)* y *Contraseña del certificado*. Se guardan como
    `ui_jurisdiction_changed`, `ui_timestamp_changed` y `ui_signing_certificate_changed` (solo la ruta; la
@@ -49,7 +50,7 @@ flowchart TD
 | **1. Evidencia** | *Agregar archivos…* y *Agregar carpeta…* abren los selectores de Windows. También puede arrastrar archivos o carpetas a la ventana (o al icono de `rv-hashinv-gui.exe` antes de que arranque), o pegar una ruta y pulsar Enter. *Incluir subcarpetas* está activada por defecto. Quite una entrada con **x**. |
 | **2. Algoritmos de hash** | Marque uno o dos. Con dos marcados, los demás se desactivan; no se puede desmarcar el último. |
 | **3. Informes** | Idioma (English, Español, Français o los tres), carpeta de salida, nombre del perito (por defecto su usuario de Windows), ID del caso opcional. |
-| **4. Confianza** | *Formato de custodia*: Colombia (Fiscalía) o Francia (scellé), para el formato de custodia. *Sello de tiempo confiable* (activado por defecto; la dirección de la TSA se puede editar). El sello de tiempo solo es cualificado según eIDAS si la dirección de la TSA es la de un prestador cualificado de servicios de confianza (QTSP) inscrito en una lista de confianza de la UE; la dirección por defecto (DigiCert) no lo es. *Certificado de firma (.p12/.pfx)* (escriba una ruta o pulse *Examinar…*) y *Contraseña del certificado* (solo en memoria, nunca se registra) para firmar cada PDF. |
+| **4. Confianza** | *Formato de custodia*: Colombia (Fiscalía) o Francia (scellé), para el formato de custodia. *Sello de tiempo confiable* (activado por defecto; la dirección de la TSA se puede editar). El sello de tiempo solo es cualificado según eIDAS si la dirección de la TSA es la de un prestador cualificado de servicios de confianza (QTSP) inscrito en una lista de confianza de la UE; la dirección por defecto (DigiCert) no lo es (*to be verified*). *Certificado de firma (.p12/.pfx)* (escriba una ruta o pulse *Examinar…*) y *Contraseña del certificado* (solo en memoria, nunca se registra) para firmar cada PDF. |
 | **Idioma de la interfaz** | Selector arriba a la derecha: English, Español, Français. Cambia todas las etiquetas de inmediato; es independiente del idioma de los informes. |
 | **Iniciar revisión / Cancelar** | Iniciar se habilita en cuanto se agrega evidencia. Durante una ejecución los ajustes quedan bloqueados y el botón pasa a ser *Cancelar*. |
 | **Progreso** | Barra por bytes procesados, `archivos hechos / total`, tiempo transcurrido (siempre en movimiento) y tiempo restante estimado. Debajo se muestra el archivo que se está leyendo. |

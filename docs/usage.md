@@ -218,7 +218,7 @@ conclude" is the overreach to avoid in a report. The exact wording printed in re
 | `UNREADABLE` (high) | The OS error (permissions, locks, path length); re-acquire and re-run; unreadable items are **not** registered | That the file is damaged or was hidden |
 | `REGISTRY_PATH_CONTENT_CHANGED` (medium) | Both evidence ids in `registry.csv`; which run registered each; how the source changed between intakes | Which version is the original, or why it changed |
 | `COLLECTION_DIGEST_MISMATCH` (high, RV Triage package) | The algorithm, the digest the collection recorded and the digest now, and the collection's run id (all in the finding); re-hash the file in the package by hand; how the package travelled from the collected machine | When, by whom or why it changed, or that the collection was wrong |
-| `COLLECTION_LOG_UNVERIFIED` (medium, RV Triage package) | The state and reason in the finding (`missing`: the package was copied without its `logs/`; `chain_broken`: the collection log was edited); copy the whole collection output folder, with its `logs/`, and run again | That any file was altered |
+| `COLLECTION_LOG_UNVERIFIED` (medium, RV Triage package) | The state and reason in the finding (`missing`: no readable collection log, e.g. the package was copied without its `logs/`; `chain_broken`: the collection log was edited); copy the whole collection output folder, with its `logs/`, and scan its `reports/<RUN-ID>/package` folder again | That any file was altered |
 <!-- /forge:domain -->
 
 | Code (case folder, analysis tools) | Check next | Do not conclude |
@@ -228,8 +228,9 @@ conclude" is the overreach to avoid in a report. The exact wording printed in re
 
 An input folder that holds a `manifest.json` (format `rakvor.triage-manifest/1`) is an **RV Triage package**:
 before registering its files, the intake verifies the collection's own audit log and compares every file with the
-digest recorded on the collected machine, which can raise the two `COLLECTION_*` codes above. Scan the whole
-collection output folder, not the package alone; details in [case-folder.md](case-folder.md#rv-triage-packages).
+digest recorded on the collected machine, which can raise the two `COLLECTION_*` codes above. Copy the whole
+collection output folder (with its `logs/`), then scan its `reports/<RUN-ID>/package` folder: the package is
+recognised only when it is itself an input (`-i`), not when you scan a folder above it; details in [case-folder.md](case-folder.md#rv-triage-packages).
 
 ## 5. Working without a case folder
 

@@ -31,7 +31,8 @@ flowchart TD
    `ui_hash_selection_changed`.
 3. **Réglez les rapports.** *Langue des rapports*, *Dossier de sortie* (ou un **Dossier de l'affaire**, voir plus
    bas), *Expert* et *Référence du dossier*. Gardés sous `ui_language_changed` et `ui_case_dir_changed` ; l'expert
-   et la référence sont consignés dans `ui_start_clicked` et imprimés sur chaque rapport et fiche de traçabilité.
+   est consigné comme `actor` de chaque entrée d'audit et la référence dans `run_started` ; tous deux sont imprimés
+   sur chaque rapport et fiche de traçabilité.
 4. **Réglez les options de confiance.** *Fiche de possession* (Colombie / France), *Horodatage qualifié* et
    l'adresse de sa TSA, *Certificat de signature (.p12/.pfx)* et *Mot de passe du certificat*. Gardés sous
    `ui_jurisdiction_changed`, `ui_timestamp_changed` et `ui_signing_certificate_changed` (le chemin seulement ;
@@ -51,7 +52,7 @@ flowchart TD
 | **1. Éléments de preuve** | *Ajouter des fichiers…* et *Ajouter un dossier…* ouvrent les sélecteurs de Windows. Vous pouvez aussi glisser des fichiers ou des dossiers sur la fenêtre (ou sur l'icône de `rv-hashinv-gui.exe` avant son lancement), ou coller un chemin et appuyer sur Entrée. *Inclure les sous-dossiers* est coché par défaut. Retirez une entrée avec **x**. |
 | **2. Algorithmes d'empreinte** | Cochez-en un ou deux. Quand deux sont cochés, les autres sont désactivés ; on ne peut pas décocher le dernier. |
 | **3. Rapports** | Langue (English, Español, Français, ou les trois), dossier de sortie, nom de l'expert (par défaut votre utilisateur Windows), référence du dossier facultative. |
-| **4. Confiance** | *Fiche de possession* : Colombie (Fiscalía) ou France (scellé), pour la fiche de traçabilité. *Horodatage qualifié* (activé par défaut ; adresse de la TSA modifiable) : malgré son libellé, cet horodatage n'est qualifié au sens d'eIDAS que si l'adresse est celle d'un prestataire de services de confiance qualifié (QTSP) inscrit sur une liste de confiance de l'UE ; l'adresse par défaut (DigiCert) ne l'est pas. *Certificat de signature (.p12/.pfx)* (saisissez un chemin ou cliquez sur *Parcourir…*) et *Mot de passe du certificat* (gardé en mémoire seulement, jamais journalisé) afin de signer chaque PDF. |
+| **4. Confiance** | *Fiche de possession* : Colombie (Fiscalía) ou France (scellé), pour la fiche de traçabilité. *Horodatage qualifié* (activé par défaut ; adresse de la TSA modifiable) : malgré son libellé, cet horodatage n'est qualifié au sens d'eIDAS que si l'adresse est celle d'un prestataire de services de confiance qualifié (QTSP) inscrit sur une liste de confiance de l'UE ; l'adresse par défaut (DigiCert) ne l'est pas (*to be verified*). *Certificat de signature (.p12/.pfx)* (saisissez un chemin ou cliquez sur *Parcourir…*) et *Mot de passe du certificat* (gardé en mémoire seulement, jamais journalisé) afin de signer chaque PDF. |
 | **Langue de l'interface** | Sélecteur en haut à droite : English, Español, Français. Change immédiatement tous les libellés ; indépendant de la langue des rapports. |
 | **Lancer l'analyse / Annuler** | Lancer est actif dès qu'un élément est ajouté. Pendant une exécution, les réglages sont verrouillés et le bouton devient *Annuler*. |
 | **Progression** | Barre selon les octets traités, `fichiers traités / total`, temps écoulé (toujours en mouvement) et temps restant estimé. Le fichier en cours de lecture s'affiche en dessous. |

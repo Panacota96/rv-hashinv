@@ -26,8 +26,8 @@ flowchart TD
    `ui_input_removed` and goes into the audit log when the run starts.
 2. **Pick the hash algorithms.** Tick one or two (keep `sha256`). Kept as `ui_hash_selection_changed`.
 3. **Set the reports.** *Report language*, *Output folder* (or a **Case folder**, see below), *Examiner* and
-   *Case ID*. Kept as `ui_language_changed` and `ui_case_dir_changed`; the examiner and case ID are recorded in
-   `ui_start_clicked` and printed on every report and custody form.
+   *Case ID*. Kept as `ui_language_changed` and `ui_case_dir_changed`; the examiner is recorded as the `actor` of
+   every audit entry and the case ID in `run_started`; both are printed on every report and custody form.
 4. **Set the trust options.** *Custody form* (Colombia / France), *Trusted timestamp* and its TSA address,
    *Signing certificate (.p12/.pfx)* and *Certificate password*. Kept as `ui_jurisdiction_changed`,
    `ui_timestamp_changed` and `ui_signing_certificate_changed` (the path only; the password is never logged).
@@ -45,7 +45,7 @@ flowchart TD
 | **1. Evidence** | *Add files…* and *Add folder…* open the Windows pickers. You can also drag files or folders onto the window (or onto the `rv-hashinv-gui.exe` icon before it starts), or paste a path and press Enter. *Include subfolders* is on by default. Remove an entry with **x**. |
 | **2. Hash algorithms** | Tick one or two. When two are ticked, the others are disabled; you cannot untick the last one. |
 | **3. Reports** | Language (English, Español, Français, or all three), output folder, examiner name (defaults to your Windows user), optional case ID. |
-| **4. Trust** | *Custody form*: Colombia (Fiscalía) or France (scellé), for the custody form. *Trusted timestamp* (on by default; TSA address editable). The timestamp is eIDAS-qualified only if the TSA address is that of a qualified trust service provider (QTSP) on an EU trusted list; the default address (DigiCert) is not one. *Signing certificate (.p12/.pfx)* (type a path or *Browse…*) and *Certificate password* (kept in memory only, never logged) so every PDF is signed. |
+| **4. Trust** | *Custody form*: Colombia (Fiscalía) or France (scellé), for the custody form. *Trusted timestamp* (on by default; TSA address editable). The timestamp is eIDAS-qualified only if the TSA address is that of a qualified trust service provider (QTSP) on an EU trusted list; the default address (DigiCert) is not one (to be verified). *Signing certificate (.p12/.pfx)* (type a path or *Browse…*) and *Certificate password* (kept in memory only, never logged) so every PDF is signed. |
 | **Interface language** | Top-right selector: English, Español, Français. Changes every label immediately; independent of the report language. |
 | **Start review / Cancel** | Start is enabled once evidence is added. During a run the settings are locked and the button becomes *Cancel*. |
 | **Progress** | Bar by bytes processed, `files done / total`, elapsed time (always moving) and estimated time remaining. The file being read is shown below. |

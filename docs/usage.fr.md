@@ -230,7 +230,7 @@ trouve dans `i18n/fr.json` (ainsi que `en.json`, `es.json`).
 | `UNREADABLE` (élevée) | L'erreur du système (droits, verrous, longueur du chemin) ; réacquérez et relancez ; les éléments illisibles ne sont **pas** enregistrés | Que le fichier soit endommagé ou ait été dissimulé |
 | `REGISTRY_PATH_CONTENT_CHANGED` (moyenne) | Les deux ID dans `registry.csv` ; quelle exécution a enregistré chacun ; comment la source a changé entre les enregistrements | Quelle version est l'originale, ou pourquoi elle a changé |
 | `COLLECTION_DIGEST_MISMATCH` (haute, paquet RV Triage) | L'algorithme, l'empreinte consignée par la collecte et l'empreinte actuelle, et l'ID d'exécution de la collecte (tous dans la constatation) ; recalculez à la main l'empreinte du fichier du paquet ; comment le paquet a voyagé depuis la machine collectée | Quand, par qui ou pourquoi il a changé, ni que la collecte était fausse |
-| `COLLECTION_LOG_UNVERIFIED` (moyenne, paquet RV Triage) | L'état et le motif dans la constatation (`missing` : le paquet a été copié sans son `logs/` ; `chain_broken` : le journal de la collecte a été modifié) ; copiez le dossier de sortie complet de la collecte, avec son `logs/`, et relancez | Qu'un fichier a été modifié |
+| `COLLECTION_LOG_UNVERIFIED` (moyenne, paquet RV Triage) | L'état et le motif dans la constatation (`missing` : aucun journal de collecte lisible, p. ex. le paquet a été copié sans son `logs/` ; `chain_broken` : le journal de la collecte a été modifié) ; copiez le dossier de sortie complet de la collecte, avec son `logs/`, et analysez de nouveau son dossier `reports/<RUN-ID>/package` | Qu'un fichier a été modifié |
 <!-- /forge:domain -->
 
 | Code (dossier de l'affaire, outils d'analyse) | À vérifier ensuite | Ne pas conclure |
@@ -241,7 +241,9 @@ trouve dans `i18n/fr.json` (ainsi que `en.json`, `es.json`).
 Un dossier d'entrée qui contient un `manifest.json` (format `rakvor.triage-manifest/1`) est un **paquet RV
 Triage** : avant d'enregistrer ses fichiers, l'enregistrement vérifie le journal d'audit propre à la collecte et
 compare chaque fichier à l'empreinte consignée sur la machine collectée, ce qui peut produire les deux codes
-`COLLECTION_*` ci-dessus. Analysez le dossier de sortie complet de la collecte, pas le paquet seul ; détails dans
+`COLLECTION_*` ci-dessus. Copiez le dossier de sortie complet de la collecte (avec son `logs/`), puis analysez son dossier
+`reports/<RUN-ID>/package` : le paquet n'est reconnu que s'il est lui-même une entrée (`-i`), pas quand vous analysez
+un dossier au-dessus ; détails dans
 [case-folder.md](case-folder.md#rv-triage-packages) (en anglais).
 
 ## 5. Travailler sans dossier d'affaire

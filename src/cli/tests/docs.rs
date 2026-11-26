@@ -409,6 +409,12 @@ fn usage_guide_has_an_exit_code_row_per_command_and_explains_every_finding_code(
                 code
             );
         }
+        // collection::detect only recognises a package given itself as an input, not a folder above it.
+        assert!(
+            text.contains("`reports/<RUN-ID>/package`"),
+            "docs/usage ({}) must say to scan the package folder reports/<RUN-ID>/package",
+            lang
+        );
         assert!(
             has_token(&text, "rv-hashinv update-check") && text.contains("RV_NO_UPDATE_CHECK"),
             "docs/usage ({}) does not describe update-check and how to turn it off",
@@ -464,6 +470,12 @@ fn gui_guide_lists_every_audit_event_labels_and_numbered_steps() {
             "docs/usage-gui ({}) has {} numbered steps",
             lang,
             steps
+        );
+        // ui_start_clicked carries neither: the examiner is the audit `actor`, the case ID is in run_started.
+        assert!(
+            text.contains("`actor`") && text.contains("`run_started`"),
+            "docs/usage-gui ({}) must say where the examiner (actor) and case ID (run_started) are recorded",
+            lang
         );
         assert!(
             text.contains("RV_NO_UPDATE_CHECK") && text.contains("update-check-off"),

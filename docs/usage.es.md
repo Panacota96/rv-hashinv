@@ -227,7 +227,7 @@ concluir" es la extralimitación que hay que evitar en un informe. El texto exac
 | `UNREADABLE` (alta) | El error del SO (permisos, bloqueos, longitud de la ruta); vuelva a adquirir y a ejecutar; los elementos ilegibles **no** se registran | Que el archivo esté dañado o haya sido ocultado |
 | `REGISTRY_PATH_CONTENT_CHANGED` (media) | Ambos ID de evidencia en `registry.csv`; qué ejecución registró cada uno; cómo cambió el origen entre recepciones | Cuál versión es la original, o por qué cambió |
 | `COLLECTION_DIGEST_MISMATCH` (alta, paquete de RV Triage) | El algoritmo, el digest que registró la recolección y el digest actual, y el ID de ejecución de la recolección (todo en el hallazgo); vuelva a calcular a mano el hash del archivo del paquete; cómo viajó el paquete desde el equipo recolectado | Cuándo, quién o por qué cambió, ni que la recolección estuviera mal |
-| `COLLECTION_LOG_UNVERIFIED` (media, paquete de RV Triage) | El estado y el motivo en el hallazgo (`missing`: el paquete se copió sin su `logs/`; `chain_broken`: el log de la recolección fue editado); copie la carpeta de salida completa de la recolección, con su `logs/`, y vuelva a ejecutar | Que algún archivo haya sido alterado |
+| `COLLECTION_LOG_UNVERIFIED` (media, paquete de RV Triage) | El estado y el motivo en el hallazgo (`missing`: ningún log de la recolección legible, p. ej. el paquete se copió sin su `logs/`; `chain_broken`: el log de la recolección fue editado); copie la carpeta de salida completa de la recolección, con su `logs/`, y vuelva a analizar su carpeta `reports/<RUN-ID>/package` | Que algún archivo haya sido alterado |
 <!-- /forge:domain -->
 
 | Código (carpeta del caso, herramientas de análisis) | Verificar después | No concluir |
@@ -238,7 +238,9 @@ concluir" es la extralimitación que hay que evitar en un informe. El texto exac
 Una carpeta de entrada que contiene un `manifest.json` (formato `rakvor.triage-manifest/1`) es un **paquete de RV
 Triage**: antes de registrar sus archivos, la recepción verifica el propio log de auditoría de la recolección y compara
 cada archivo con el digest registrado en el equipo recolectado, lo que puede generar los dos códigos `COLLECTION_*`
-de arriba. Analice la carpeta de salida completa de la recolección, no solo el paquete; detalles en
+de arriba. Copie la carpeta de salida completa de la recolección (con su `logs/`) y luego analice su carpeta
+`reports/<RUN-ID>/package`: el paquete solo se reconoce cuando es él mismo una entrada (`-i`), no cuando se analiza
+una carpeta superior; detalles en
 [case-folder.md](case-folder.md#rv-triage-packages) (en inglés).
 
 ## 5. Trabajar sin carpeta del caso
